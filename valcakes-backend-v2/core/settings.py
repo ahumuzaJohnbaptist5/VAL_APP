@@ -5,10 +5,15 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-ba_a-(qy1(fl2=*ya=+$f+h1m30b(v@pe6qf1#pgv=9no39gub'
-DEBUG = True
-
+DEBUG = os.environ.get('RENDER', 'False') != 'True'
 # FIX #1: Allow all hosts in development
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*']  # Render will set the domain
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+]
+# We'll add the Vercel URL after deployment
+CORS_ALLOW_ALL_ORIGINS = True  # For now, keep it open
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -114,3 +119,8 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Production database settings
+if os.environ.get('DATABASE_URL'):
+    import dj_database_url
+    DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
