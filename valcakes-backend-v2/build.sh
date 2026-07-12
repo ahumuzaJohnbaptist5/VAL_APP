@@ -1,14 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -o errexit
 
-# Install pip and upgrade
 pip install --upgrade pip
-
-# Install dependencies
 pip install -r requirements.txt
+pip install gunicorn whitenoise
 
-# Install gunicorn for production
-pip install gunicorn
+# Collect static files (this is what creates the admin CSS/JS)
+python manage.py collectstatic --no-input --clear
 
-# Collect static files
-python manage.py collectstatic --no-input
+# Run migrations
+python manage.py migrate --no-input
