@@ -6,14 +6,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-ba_a-(qy1(fl2=*ya=+$f+h1m30b(v@pe6qf1#pgv=9no39gub'
 DEBUG = os.environ.get('RENDER', 'False') != 'True'
-# FIX #1: Allow all hosts in development
-ALLOWED_HOSTS = ['*']  # Render will set the domain
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5500",
-    "http://127.0.0.1:5500",
-]
-# We'll add the Vercel URL after deployment
-CORS_ALLOW_ALL_ORIGINS = True  # For now, keep it open
+
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -31,11 +25,11 @@ INSTALLED_APPS = [
     
     # Local apps
     'users',
-    'shop',  # Changed from 'shopping' to match our clean build
+    'shop',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # ← THIS MUST BE FIRST!
+    'corsheaders.middleware.CorsMiddleware',  # MUST BE FIRST!
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -45,15 +39,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# FIX #2: Allow all origins for development (this is the magic fix!)
+# CORS - Allow ALL origins for now
 CORS_ALLOW_ALL_ORIGINS = True
-
-# If you want to be specific, use this instead:
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-#     "http://localhost:5500",
-#     "http://127.0.0.1:5500",
-# ]
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'core.urls'
 
@@ -81,7 +69,6 @@ DATABASES = {
     }
 }
 
-# FIX #3: Add proper permissions
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -109,23 +96,17 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # ← ADD THIS LINE
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Media files (User uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# FIX #4: Proper media settings
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# File upload limits
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Production database settings
+# Production database
 if os.environ.get('DATABASE_URL'):
     import dj_database_url
     DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
