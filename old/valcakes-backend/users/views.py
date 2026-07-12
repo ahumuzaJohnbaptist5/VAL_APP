@@ -7,7 +7,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
-
+from django.core.mail import send_mail  # <-- ADDED THIS IMPORT
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -26,17 +26,49 @@ class RegisterView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         
+        # --- SEND WELCOME EMAIL VIA BREVO ---
+        if user.email:
+            try:
+                send_mail(
+                    subject='Welcome to Val Investments! 🎉',
+                    message=f'''Dear {user.full_name},
+
+Welcome to Val Cakes Wholesale!
+
+Thank you for creating an account with us. We are thrilled to have you as part of our community.
+
+What's Next?
+- Browse our wholesale shopping center for quality baking supplies
+- Explore our signature cakes collection
+- Enjoy seamless ordering and fast delivery
+
+If you have any questions, feel free to reach out to us at valinvestiments@gmail.com
+
+Happy Baking!
+
+Best regards,
+The Val Investments Team
+                    ''',
+                    from_email=None,  # Uses DEFAULT_FROM_EMAIL from settings.py
+                    recipient_list=[user.email],
+                    fail_silently=False,
+                )
+                print(f"✅ Welcome email sent to {user.email} via Brevo")
+            except Exception as e:
+                print(f"❌ Failed to send email to {user.email}: {e}")
+        # ------------------------------------
+
         # If it's a customer, log them in immediately. If admin/agent, just return success.
         if user.role == 'customer':
             tokens = get_tokens_for_user(user)
             return Response({
-                'user': {'id': user.id, 'full_name': user.full_name, 'role': user.role},
+                'user': {'id': user.id, 'full_name': user.full_name, 'role': user.role, 'email': user.email},
                 'tokens': tokens
             }, status=status.HTTP_201_CREATED)
         
         return Response({
             'message': 'Account created. Pending approval for admin/agent role.',
-            'user': {'id': user.id, 'full_name': user.full_name, 'role': user.role}
+            'user': {'id': user.id, 'full_name': user.full_name, 'role': user.role, 'email': user.email}
         }, status=status.HTTP_201_CREATED)
 
 
