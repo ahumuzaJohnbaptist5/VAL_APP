@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Val Cakes</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            pink: '#db2777', 
+                            dark: '#1c1917', 
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans text-gray-800 bg-stone-50 flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-stone-200">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2">
+<img src="logo.png" alt="Val Cakes Logo" class="h-12 w-auto object-contain">                <span class="font-serif text-xl font-bold text-gray-900 tracking-wide">VAL CAKES</span>
+            </a>
+            
+            <div class="hidden md:flex gap-8 text-sm font-semibold text-gray-700">
+                <a href="index.html" class="hover:text-brand-pink transition">Home</a>
+                <a href="about.html" class="text-brand-pink border-b-2 border-brand-pink pb-1">About Us</a>
+                <a href="cakes.html" class="hover:text-brand-pink transition">Cakes</a>
+                <a href="shopping.html" class="hover:text-brand-pink transition">Shopping Center</a>
+                <a href="contact.html" class="hover:text-brand-pink transition">Contact</a>
+            </div>
+
+            <div class="flex gap-4 items-center">
+                <a href="login.html" class="text-sm font-semibold text-gray-700 hover:text-brand-pink transition">Login</a>
+                <a href="register.html" class="bg-brand-pink text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-pink-700 transition shadow-md">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <header class="relative h-[300px] flex items-center justify-center text-center text-white overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1556910103-1c02745aa30e?w=1920');"></div>
+        <div class="absolute inset-0 bg-black/60"></div>
+        
+        <div class="relative z-10 max-w-4xl px-6">
+            <h1 class="font-serif text-4xl md:text-5xl font-bold mb-4">Our Sweet Story</h1>
+            <p class="text-lg text-gray-200">Baking happiness and empowering businesses since day one.</p>
+        </div>
+    </header>
+
+    <!-- Our Story Section -->
+    <section class="max-w-7xl mx-auto px-6 py-20">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div class="relative">
+                <img src="https://images.unsplash.com/photo-1556910103-1c02745aa30e?w=800" alt="Baker working" class="rounded-2xl shadow-xl w-full object-cover h-[400px]">
+                <div class="absolute -bottom-6 -right-6 bg-brand-pink text-white p-6 rounded-xl shadow-lg hidden md:block">
+                    <p class="font-serif text-3xl font-bold">100%</p>
+                    <p class="text-sm uppercase tracking-wider">Handcrafted</p>
+                </div>
+            </div>
+            <div>
+                <h2 class="font-serif text-3xl font-bold text-gray-900 mb-6">From a Small Kitchen to a Wholesale Empire</h2>
+                <p class="text-gray-600 mb-4 leading-relaxed">
+                    Val Cakes started with a simple mission: to bring joy to people's special moments through the art of baking. What began as a small home kitchen in Kabale has now grown into a full-scale bakery and wholesale supply center.
+                </p>
+                <p class="text-gray-600 mb-6 leading-relaxed">
+                    Today, under <strong>Val Investments</strong>, we not only craft beautiful custom cakes for weddings, birthdays, and anniversaries, but we also supply high-quality baking ingredients and equipment to other bakers, restaurants, and businesses across the region.
+                </p>
+                <div class="flex gap-4">
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-brand-pink">500+</p>
+                        <p class="text-xs text-gray-500 uppercase">Cakes Baked</p>
+                    </div>
+                    <div class="w-px bg-gray-300"></div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-brand-pink">100+</p>
+                        <p class="text-xs text-gray-500 uppercase">Business Supplied</p>
+                    </div>
+                    <div class="w-px bg-gray-300"></div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-brand-pink">5★</p>
+                        <p class="text-xs text-gray-500 uppercase">Customer Rating</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission & Vision -->
+    <section class="bg-white py-20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="font-serif text-3xl font-bold text-gray-900 mb-4">What Drives Us</h2>
+                <div class="w-20 h-1 bg-brand-pink mx-auto"></div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Mission -->
+                <div class="bg-stone-50 p-10 rounded-2xl border border-stone-100 hover:shadow-lg transition">
+                    <div class="w-14 h-14 bg-pink-100 rounded-full flex items-center justify-center mb-6 text-brand-pink">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/><path d="M12 16V8"/></svg>
+                    </div>
+                    <h3 class="font-serif text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        To provide the highest quality, handcrafted cakes for life's sweetest moments, while empowering local businesses and bakers with reliable, affordable wholesale supplies.
+                    </p>
+                </div>
+
+                <!-- Vision -->
+                <div class="bg-stone-50 p-10 rounded-2xl border border-stone-100 hover:shadow-lg transition">
+                    <div class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mb-6 text-purple-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <h3 class="font-serif text-2xl font-bold text-gray-900 mb-4">Our Vision</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        To be the leading bakery and wholesale supplier in the region, known for our unmatched quality, customer care, and commitment to helping other businesses grow.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="max-w-7xl mx-auto px-6 py-20">
+        <div class="text-center mb-16">
+            <h2 class="font-serif text-3xl font-bold text-gray-900 mb-4">Why Choose Val Cakes?</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">We don't just bake cakes; we build relationships.</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Premium Quality</h3>
+                <p class="text-gray-600 text-sm">We use only the finest ingredients, sourced locally and internationally, to ensure every bite is perfect.</p>
+            </div>
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Customer First</h3>
+                <p class="text-gray-600 text-sm">Your satisfaction is our priority. We listen to your needs and deliver exactly what you envision.</p>
+            </div>
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/><path d="M7 15h.01"/><path d="M12 15h.01"/><path d="M17 15h.01"/></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Reliable Delivery</h3>
+                <p class="text-gray-600 text-sm">Whether it's a single cake or 50 bags of flour, we ensure safe and timely delivery to your doorstep.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16 mt-auto">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+<img src="logo.png" alt="Val Cakes Logo" class="h-12 w-auto object-contain">                        <span class="font-serif text-xl font-bold tracking-wide">VAL CAKES</span>
+                    </div>
+                    <p class="text-gray-400 max-w-sm">Baking happiness, one cake at a time. Your trusted partner for custom cakes and wholesale baking supplies.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="cakes.html" class="hover:text-white transition">Cakes</a></li>
+                        <li><a href="shopping.html" class="hover:text-white transition">Shopping Center</a></li>
+                        <li><a href="about.html" class="hover:text-white transition">About Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>+256-763386097</li>
+                        <li>valinvestiments@gmail.com</li>
+                        <li>Kabale, Uganda</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
+                © 2026 Val Investments. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

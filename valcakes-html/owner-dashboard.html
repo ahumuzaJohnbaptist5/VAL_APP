@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Val Cakes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            pink: '#db2777',
+                            dark: '#1c1917',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans text-gray-800 bg-stone-100 min-h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-stone-200 min-h-screen flex flex-col fixed h-full">
+        <div class="p-6 border-b border-stone-200">
+            <div class="flex items-center gap-3">
+                <img src="logo.png" alt="Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
+                <span class="font-serif text-xl font-bold text-gray-900">VAL ADMIN</span>
+            </div>
+        </div>
+        <nav class="flex-grow p-4 space-y-2">
+            <a href="#" class="block px-4 py-3 bg-pink-50 text-brand-pink font-semibold rounded-lg">Dashboard</a>
+            <a href="index.html" class="block px-4 py-3 text-gray-600 hover:bg-stone-50 rounded-lg transition">View Website</a>
+        </nav>
+        <div class="p-4 border-t border-stone-200">
+            <button onclick="logout()" class="w-full px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 transition text-left">
+                Log Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow ml-64 p-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="font-serif text-3xl font-bold text-gray-900">Shop Manager</h1>
+                <p class="text-gray-600">Manage your wholesale inventory and categories.</p>
+            </div>
+            <div id="adminName" class="text-sm font-semibold text-gray-700 bg-white px-4 py-2 rounded-lg shadow-sm">Loading...</div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                <p class="text-sm text-gray-500 mb-1">Total Items</p>
+                <p id="totalItems" class="text-3xl font-bold text-gray-900">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                <p class="text-sm text-gray-500 mb-1">Total Categories</p>
+                <p id="totalCategories" class="text-3xl font-bold text-gray-900">0</p>
+            </div>
+        </div>
+
+        <!-- Categories Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-serif text-xl font-bold text-gray-900">Categories</h2>
+                <button onclick="openModal('categoryModal')" class="bg-brand-pink text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-pink-700 transition">+ Add Category</button>
+            </div>
+            <div id="categoriesList" class="flex flex-wrap gap-3">
+                <p class="text-gray-500 text-sm">Loading categories...</p>
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+            <div class="flex justify-between items-center p-6 border-b border-stone-200">
+                <h2 class="font-serif text-xl font-bold text-gray-900">Shop Items</h2>
+                <button onclick="openModal('itemModal')" class="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition">+ Add Item</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-stone-50 text-gray-600 text-sm uppercase">
+                        <tr>
+                            <th class="p-4">Image</th>
+                            <th class="p-4">Name</th>
+                            <th class="p-4">Category</th>
+                            <th class="p-4">Price (UGX)</th>
+                            <th class="p-4">Stock</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody" class="divide-y divide-stone-100 text-sm">
+                        <tr><td colspan="7" class="p-4 text-center text-gray-500">Loading items...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Category Modal -->
+    <div id="categoryModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl">
+            <h3 class="font-serif text-xl font-bold mb-4">Add New Category</h3>
+            <form id="categoryForm" class="space-y-4">
+                <input type="text" id="catName" placeholder="Category Name" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none">
+                <textarea id="catDesc" placeholder="Description (Optional)" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none"></textarea>
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('categoryModal')" class="px-4 py-2 text-gray-600 hover:bg-stone-100 rounded-lg">Cancel</button>
+                    <button type="submit" class="bg-brand-pink text-white px-6 py-2 rounded-lg font-semibold hover:bg-pink-700">Save Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div id="itemModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-lg shadow-2xl">
+            <h3 class="font-serif text-xl font-bold mb-4">Add New Item</h3>
+            <form id="itemForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Item Name</label>
+                    <input type="text" id="itemName" placeholder="e.g., Premium Wheat Flour" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                    <textarea id="itemDesc" placeholder="Describe the item..." required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none" rows="2"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Price (UGX)</label>
+                        <input type="number" id="itemPrice" placeholder="50000" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Stock Quantity</label>
+                        <input type="number" id="itemStock" placeholder="100" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                    <select id="itemCategory" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none bg-white">
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Product Image</label>
+                    <input type="file" id="itemImage" accept="image/*" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none bg-white text-sm">
+                    <p class="text-xs text-gray-500 mt-1">Accepted: JPG, PNG, JPEG (Max 5MB)</p>
+                </div>
+                
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="itemInStock" checked class="w-5 h-5 rounded text-brand-pink focus:ring-brand-pink">
+                    <span class="text-sm font-semibold text-gray-700">In Stock</span>
+                </label>
+                
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeModal('itemModal')" class="px-4 py-2 text-gray-600 hover:bg-stone-100 rounded-lg">Cancel</button>
+                    <button type="submit" class="bg-gray-900 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-800">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const API_BASE = 'http://localhost:8000/api/shop/';
+        let token = localStorage.getItem('access_token');
+        let user = JSON.parse(localStorage.getItem('user'));
+
+        // 1. Security Check
+        if (!token || !user) {
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('adminName').innerText = `Welcome, ${user.full_name} (${user.role})`;
+        }
+
+        // 2. Fetch Data on Load
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if token exists
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+        alert('Please log in first');
+        window.location.href = 'login.html';
+        return;
+    }
+    fetchCategories();
+    fetchItems();
+});
+
+async function fetchCategories() {
+    const token = localStorage.getItem('access_token');
+    
+    try {
+        const res = await fetch(API_BASE + 'categories/', { 
+            headers: { 
+                'Authorization': `Bearer ${token}` 
+            } 
+        });
+        
+        // If unauthorized, redirect to login
+        if (res.status === 401) {
+            console.error('❌ Token expired or invalid. Please log in again.');
+            localStorage.clear();
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        const data = await res.json();
+        
+        // Check if data is an array
+        if (!Array.isArray(data)) {
+            console.error('❌ Expected array but got:', data);
+            return;
+        }
+        
+        document.getElementById('totalCategories').innerText = data.length;
+        const list = document.getElementById('categoriesList');
+        const select = document.getElementById('itemCategory');
+        
+        list.innerHTML = '';
+        select.innerHTML = '<option value="">Select Category</option>';
+
+        data.forEach(cat => {
+            list.innerHTML += `
+                <div class="bg-purple-50 border border-purple-200 px-4 py-2 rounded-lg flex items-center gap-2">
+                    <span class="font-semibold text-purple-900">${cat.name}</span>
+                    <button onclick="deleteCategory(${cat.id})" class="text-purple-400 hover:text-red-600"></button>
+                </div>`;
+            select.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+        });
+    } catch (err) { 
+        console.error('Error fetching categories', err); 
+    }
+}
+
+async function fetchItems() {
+    const token = localStorage.getItem('access_token');
+    
+    try {
+        const res = await fetch(API_BASE + 'items/', { 
+            headers: { 
+                'Authorization': `Bearer ${token}` 
+            } 
+        });
+        
+        // If unauthorized, redirect to login
+        if (res.status === 401) {
+            console.error('❌ Token expired or invalid. Please log in again.');
+            localStorage.clear();
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        const data = await res.json();
+        
+        // Check if data is an array
+        if (!Array.isArray(data)) {
+            console.error('❌ Expected array but got:', data);
+            return;
+        }
+        
+        console.log('=== ITEMS FROM API ===');
+        console.log(data);
+        
+        document.getElementById('totalItems').innerText = data.length;
+        const tbody = document.getElementById('itemsTableBody');
+        tbody.innerHTML = '';
+
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500">No items yet. Click "+ Add Item" to create one.</td></tr>';
+            return;
+        }
+
+        data.forEach(item => {
+const imageUrl = item.image ? encodeURI(item.image) : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="50" height="50"%3E%3Crect fill="%23e5e5e5" width="50" height="50"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-size="10"%3ENo Image%3C/text%3E%3C/svg%3E';            
+            tbody.innerHTML += `
+                <tr class="hover:bg-stone-50">
+                    <td class="p-4">
+                        <img src="${imageUrl}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg border border-stone-200" onerror="this.style.display='none'">
+                    </td>
+                    <td class="p-4 font-medium text-gray-900">${item.name}</td>
+                    <td class="p-4 text-gray-600">${item.category_name || 'Uncategorized'}</td>
+                    <td class="p-4 font-semibold">${parseInt(item.price).toLocaleString()}</td>
+                    <td class="p-4">${item.stock_quantity}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded-full text-xs font-bold ${item.in_stock ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                            ${item.in_stock ? 'In Stock' : 'Out of Stock'}
+                        </span>
+                    </td>
+                    <td class="p-4 text-right">
+                        <button onclick="deleteItem(${item.id})" class="text-red-500 hover:text-red-700 font-semibold text-xs">Delete</button>
+                    </td>
+                </tr>`;
+        });
+    } catch (err) { 
+        console.error('Error fetching items', err);
+    }
+}
+        // 4. Handle Item Form Submission (WITH IMAGE UPLOAD)
+document.getElementById('itemForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    formData.append('name', document.getElementById('itemName').value);
+    formData.append('description', document.getElementById('itemDesc').value);
+    formData.append('price', document.getElementById('itemPrice').value);
+    formData.append('stock_quantity', document.getElementById('itemStock').value);
+    formData.append('category', document.getElementById('itemCategory').value);
+    formData.append('in_stock', document.getElementById('itemInStock').checked);
+    
+    // Handle image file
+    const imageFile = document.getElementById('itemImage').files[0];
+    if (imageFile) {
+        // Check file size (max 5MB)
+        if (imageFile.size > 5 * 1024 * 1024) {
+            alert('Image file is too large. Max size is 5MB.');
+            return;
+        }
+        formData.append('image', imageFile);
+        console.log('📁 File selected:', imageFile.name, 'Size:', imageFile.size, 'bytes');
+    } else {
+        console.log('⚠️ No image file selected');
+    }
+
+    // Log all form data
+    console.log('📦 Sending FormData:');
+    for (let [key, value] of formData.entries()) {
+        console.log(`  ${key}:`, value instanceof File ? `File(${value.name})` : value);
+    }
+
+    try {
+        const response = await fetch(API_BASE + 'items/', {
+            method: 'POST',
+            headers: { 
+                'Authorization': `Bearer ${token}`
+                // IMPORTANT: Don't set Content-Type header - browser sets it automatically for FormData
+            },
+            body: formData
+        });
+        
+        console.log('📥 Response status:', response.status);
+        const responseData = await response.json();
+        console.log('📥 Response data:', responseData);
+        
+        if (!response.ok) {
+            throw new Error(responseData.detail || responseData.image?.[0] || 'Failed to add item');
+        }
+        
+        closeModal('itemModal');
+        document.getElementById('itemForm').reset();
+        await fetchItems();
+        alert('Item added successfully!');
+    } catch (err) { 
+        console.error('❌ Error adding item:', err);
+        alert('Failed to add item: ' + err.message);
+    }
+});
+       
+       // 4. Handle Item Form Submission (WITH IMAGE UPLOAD)
+document.getElementById('itemForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    formData.append('name', document.getElementById('itemName').value);
+    formData.append('description', document.getElementById('itemDesc').value);
+    formData.append('price', document.getElementById('itemPrice').value);
+    formData.append('stock_quantity', document.getElementById('itemStock').value);
+    formData.append('category', document.getElementById('itemCategory').value);
+    formData.append('in_stock', document.getElementById('itemInStock').checked);
+    
+    // Handle image file
+    const imageFile = document.getElementById('itemImage').files[0];
+    if (imageFile) {
+        formData.append('image', imageFile);
+        console.log('Uploading image:', imageFile.name);
+    } else {
+        console.log('No image selected');
+    }
+
+    try {
+        const response = await fetch(API_BASE + 'items/', {
+            method: 'POST',
+            headers: { 
+                'Authorization': `Bearer ${token}`
+                // DON'T set Content-Type - browser will set it automatically for FormData
+            },
+            body: formData
+        });
+        
+        console.log('Response status:', response.status);
+        const responseData = await response.json();
+        console.log('Response data:', responseData);
+        
+        if (!response.ok) {
+            throw new Error(responseData.detail || 'Failed to add item');
+        }
+        
+        closeModal('itemModal');
+        document.getElementById('itemForm').reset();
+        await fetchItems(); // Wait for items to load
+        alert('Item added successfully!');
+    } catch (err) { 
+        console.error('Error adding item:', err);
+        alert('Failed to add item: ' + err.message);
+    }
+});
+
+        // 5. Delete Functions
+        async function deleteCategory(id) {
+            if(!confirm('Delete this category?')) return;
+            await fetch(API_BASE + `categories/${id}/`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+            fetchCategories();
+        }
+
+        async function deleteItem(id) {
+            if(!confirm('Delete this item?')) return;
+            await fetch(API_BASE + `items/${id}/`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+            fetchItems();
+        }
+
+        // 6. UI Helpers
+        function openModal(id) { 
+            document.getElementById(id).classList.remove('hidden'); 
+            document.getElementById(id).classList.add('flex'); 
+        }
+        function closeModal(id) { 
+            document.getElementById(id).classList.add('hidden'); 
+            document.getElementById(id).classList.remove('flex'); 
+        }
+        function logout() { 
+            localStorage.clear(); 
+            window.location.href = 'login.html'; 
+        }
+    </script>
+</body>
+</html>

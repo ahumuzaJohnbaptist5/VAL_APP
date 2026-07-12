@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Cakes - Val Cakes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'], },
+                    colors: { brand: { pink: '#db2777', dark: '#1c1917', } }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans text-gray-800 bg-stone-50 flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-stone-200">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3">
+                <img src="logo.png" alt="Val Cakes Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
+                <span class="font-serif text-xl font-bold text-gray-900 tracking-wide">VAL CAKES</span>
+            </a>
+            <div class="hidden md:flex gap-8 text-sm font-semibold text-gray-700">
+                <a href="index.html" class="hover:text-brand-pink transition">Home</a>
+                <a href="about.html" class="hover:text-brand-pink transition">About Us</a>
+                <a href="cakes.html" class="text-brand-pink border-b-2 border-brand-pink pb-1">Cakes</a>
+                <a href="shopping.html" class="hover:text-brand-pink transition">Shopping Center</a>
+                <a href="contact.html" class="hover:text-brand-pink transition">Contact</a>
+            </div>
+            <div class="flex gap-4 items-center">
+                <a href="login.html" class="text-sm font-semibold text-gray-700 hover:text-brand-pink transition">Login</a>
+                <a href="register.html" class="bg-brand-pink text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-pink-700 transition shadow-md">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <header class="relative h-[300px] flex items-center justify-center text-center text-white overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=1920');"></div>
+        <div class="absolute inset-0 bg-black/60"></div>
+        <div class="relative z-10 max-w-4xl px-6">
+            <h1 class="font-serif text-4xl md:text-5xl font-bold mb-4">Our Signature Cakes</h1>
+            <p class="text-lg text-gray-200">Handcrafted with love for your sweetest moments.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-12 flex-grow w-full">
+        
+        <!-- Dynamic Category Filters -->
+        <div id="filterContainer" class="flex flex-wrap justify-center gap-3 mb-12">
+            <button onclick="filterItems('all', this)" class="filter-btn active px-6 py-2 rounded-full text-sm font-semibold bg-brand-pink text-white shadow-md transition">All Cakes</button>
+        </div>
+
+        <!-- Dynamic Items Grid -->
+        <div id="itemsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="col-span-3 text-center py-10">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-pink"></div>
+                <p class="text-gray-500 mt-2">Loading cakes...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16 mt-auto">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-3 mb-4">
+                        <img src="logo.png" alt="Val Cakes" class="h-10 w-auto object-contain" onerror="this.style.display='none'">
+                        <span class="font-serif text-xl font-bold tracking-wide">VAL CAKES</span>
+                    </div>
+                    <p class="text-gray-400 max-w-sm">Baking happiness, one cake at a time.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="cakes.html" class="hover:text-white transition">Cakes</a></li>
+                        <li><a href="shopping.html" class="hover:text-white transition">Shopping Center</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>+256-763386097</li>
+                        <li>valinvestiments@gmail.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
+                © 2026 Val Investments. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        const API_BASE = 'http://localhost:8000/api/shop/';
+        let allItems = [];
+        let allCategories = [];
+
+        async function loadData() {
+            try {
+                const catRes = await fetch(API_BASE + 'categories/');
+                allCategories = await catRes.json();
+
+                const itemRes = await fetch(API_BASE + 'items/');
+                allItems = await itemRes.json();
+
+                renderFilters();
+                renderItems('all');
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('itemsGrid').innerHTML = `
+                    <div class="col-span-3 text-center py-10">
+                        <p class="text-red-500 font-semibold">Failed to load cakes.</p>
+                        <p class="text-gray-500 text-sm">Make sure Django is running on port 8000</p>
+                    </div>`;
+            }
+        }
+
+        function renderFilters() {
+            const container = document.getElementById('filterContainer');
+            let html = `<button onclick="filterItems('all', this)" class="filter-btn active px-6 py-2 rounded-full text-sm font-semibold bg-brand-pink text-white shadow-md transition">All Cakes</button>`;
+            
+            allCategories.forEach(cat => {
+                html += `<button onclick="filterItems(${cat.id}, this)" class="filter-btn px-6 py-2 rounded-full text-sm font-semibold bg-white text-gray-700 border border-stone-300 hover:border-brand-pink hover:text-brand-pink transition">${cat.name}</button>`;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function renderItems(categoryId) {
+            const grid = document.getElementById('itemsGrid');
+            let filteredItems = allItems;
+
+            if (categoryId !== 'all') {
+                filteredItems = allItems.filter(item => item.category === categoryId);
+            }
+
+            if (filteredItems.length === 0) {
+                grid.innerHTML = '<div class="col-span-3 text-center text-gray-500 py-10">No items found in this category.</div>';
+                return;
+            }
+
+            let html = '';
+            filteredItems.forEach(item => {
+                // Only show image if it exists, otherwise show empty gray box
+                const imageHtml = item.image 
+                    ? `<img src="${encodeURI(item.image)}" ... >`
+                    : `<div ...>No Image</div>`;
+                
+                html += `
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-stone-100 group">
+                    <div class="relative h-64 overflow-hidden bg-stone-100">
+                        ${imageHtml}
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-gray-800 shadow-sm">
+                            ${item.category_name || 'Cake'}
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-serif text-xl font-bold text-gray-900 mb-2">${item.name}</h3>
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">${item.description}</p>
+                        <div class="flex items-center justify-between pt-4 border-t border-stone-100">
+                            <div>
+                                <span class="text-2xl font-bold text-brand-pink">${parseInt(item.price).toLocaleString()}</span>
+                                <span class="text-xs text-gray-500 ml-1">UGX</span>
+                            </div>
+                            <button onclick='addToCart(${JSON.stringify(item)})' class="bg-gray-900 text-white px-5 py-2 rounded-full hover:bg-brand-pink transition-colors shadow-sm text-sm font-semibold">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            grid.innerHTML = html;
+        }
+
+        function filterItems(categoryId, btnElement) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-pink', 'text-white', 'shadow-md');
+                btn.classList.add('bg-white', 'text-gray-700', 'border', 'border-stone-300');
+            });
+            
+            btnElement.classList.remove('bg-white', 'text-gray-700', 'border', 'border-stone-300');
+            btnElement.classList.add('bg-brand-pink', 'text-white', 'shadow-md');
+
+            renderItems(categoryId);
+        }
+
+        // Add to Cart Function
+        function addToCart(item) {
+            let cart = JSON.parse(localStorage.getItem('valcakes_cart')) || [];
+            const existingItem = cart.find(cartItem => cartItem.id === item.id);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ ...item, quantity: 1 });
+            }
+            localStorage.setItem('valcakes_cart', JSON.stringify(cart));
+            alert(`${item.name} added to cart!`);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>

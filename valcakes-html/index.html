@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Val Cakes - Freshly Baked Happiness</title>
+    
+    <!-- Tailwind CSS (Instant styling, no installation needed) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts for that elegant look -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            pink: '#db2777', // Pink-600
+                            dark: '#1c1917', // Stone-900
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans text-gray-800 bg-stone-50">
+
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-stone-200">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <!-- Logo -->
+          <a href="index.html" class="flex items-center gap-2">
+    <img src="logo.png" alt="Val Cakes Logo" class="h-12 w-auto object-contain">
+    <span class="font-serif text-xl font-bold text-gray-900 tracking-wide">VAL CAKES</span>
+</a>
+            
+            <!-- Desktop Links -->
+            <div class="hidden md:flex gap-8 text-sm font-semibold text-gray-700">
+                <a href="index.html" class="text-brand-pink border-b-2 border-brand-pink pb-1">Home</a>
+                <a href="about.html" class="hover:text-brand-pink transition">About Us</a>
+                <a href="cakes.html" class="hover:text-brand-pink transition">Cakes</a>
+                <a href="shopping.html" class="hover:text-brand-pink transition">Shopping Center</a>
+                <a href="contact.html" class="hover:text-brand-pink transition">Contact</a>
+            </div>
+
+            <!-- Auth Buttons -->
+            <div class="flex gap-4 items-center">
+                <a href="login.html" class="text-sm font-semibold text-gray-700 hover:text-brand-pink transition">Login</a>
+                <a href="register.html" class="bg-brand-pink text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-pink-700 transition shadow-md">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative h-[600px] flex items-center justify-center text-center text-white overflow-hidden">
+        <!-- Background Image -->
+        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1920');"></div>
+        <!-- Dark Overlay -->
+        <div class="absolute inset-0 bg-black/60"></div>
+        
+        <!-- Content -->
+        <div class="relative z-10 max-w-4xl px-6">
+            <h1 class="font-serif text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                Freshly Baked <br> <span class="text-pink-400">Happiness.</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto">
+                Custom cakes for your sweetest moments. Handcrafted with love, delivered with care.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="cakes.html" class="bg-brand-pink text-white px-8 py-3 rounded-full font-semibold hover:bg-pink-700 transition shadow-lg transform hover:scale-105">
+                    Order Cakes
+                </a>
+                <a href="shopping.html" class="bg-white text-gray-900 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition shadow-lg transform hover:scale-105">
+                    Shop Wholesale
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section class="max-w-7xl mx-auto px-6 py-20">
+        <div class="text-center mb-16">
+            <h2 class="font-serif text-4xl font-bold text-gray-900 mb-4">Why Choose Val Cakes?</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">We provide the best quality cakes and wholesale baking supplies in the region.</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-stone-100 text-center hover:shadow-lg transition">
+                <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6 text-brand-pink">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3 font-serif">Custom Cakes</h3>
+                <p class="text-gray-600">Design your dream cake for weddings, birthdays, and any special occasion.</p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-stone-100 text-center hover:shadow-lg transition">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6 text-purple-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3 font-serif">Wholesale Supplies</h3>
+                <p class="text-gray-600">Quality ingredients, packaging, and equipment for bakers and businesses.</p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-stone-100 text-center hover:shadow-lg transition">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="13" x="1" y="3" rx="2"/><path d="M17 21v-2"/><path d="M7 21v-2"/><path d="M5 10h14"/><path d="m9 16 2 2 4-4"/></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3 font-serif">Fast Delivery</h3>
+                <p class="text-gray-600">Fresh cakes and bulk supplies delivered safely to your doorstep.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+<img src="logo.png" alt="Val Cakes Logo" class="h-12 w-auto object-contain">                        <span class="font-serif text-xl font-bold tracking-wide">VAL CAKES</span>
+                    </div>
+                    <p class="text-gray-400 max-w-sm">Baking happiness, one cake at a time. Your trusted partner for custom cakes and wholesale baking supplies.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="cakes.html" class="hover:text-white transition">Cakes</a></li>
+                        <li><a href="shopping.html" class="hover:text-white transition">Shopping Center</a></li>
+                        <li><a href="about.html" class="hover:text-white transition">About Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>+256-763386097</li>
+                        <li>valinvestiments@gmail.com</li>
+                        <li>Kabale, Uganda</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
+                © 2026 Val Investments. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    // Dynamic Navbar based on login status
+    const navContainer = document.querySelector('nav .flex.gap-4.items-center') || document.querySelector('nav .flex.items-center.gap-6');
+    const user = JSON.parse(localStorage.getItem('user'));
+    
+    if (user && navContainer) {
+        navContainer.innerHTML = `
+            <a href="profile.html" class="text-sm font-semibold text-gray-700 hover:text-brand-pink transition">My Profile</a>
+            <a href="cart.html" class="relative text-sm font-semibold text-gray-700 hover:text-brand-pink transition flex items-center gap-1">
+                Cart
+                <span id="cartBadge" class="bg-brand-pink text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+            </a>
+        `;
+        
+        // Update cart badge
+        const cart = JSON.parse(localStorage.getItem('valcakes_cart')) || [];
+        if (cart.length > 0) {
+            const badge = document.getElementById('cartBadge');
+            badge.innerText = cart.length;
+            badge.classList.remove('hidden');
+        }
+    }
+</script>
+</body>
+
+</html>

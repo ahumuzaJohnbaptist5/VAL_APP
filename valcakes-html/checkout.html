@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Val Cakes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'], }, colors: { brand: { pink: '#db2777', dark: '#1c1917', } } } } }
+    </script>
+</head>
+<body class="font-sans text-gray-800 bg-stone-50 min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-stone-200">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3">
+                <img src="logo.png" alt="Val Cakes Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
+                <span class="font-serif text-xl font-bold text-gray-900 tracking-wide">VAL CAKES</span>
+            </a>
+            <a href="cart.html" class="text-sm font-semibold text-gray-700 hover:text-brand-pink transition">Back to Cart</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-12 flex-grow w-full">
+        <h1 class="font-serif text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+        
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Delivery & Payment Details -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Delivery Info -->
+                <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
+                    <h2 class="font-serif text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand-pink"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Delivery Details
+                    </h2>
+                    <form id="deliveryForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
+                            <input type="text" id="fullName" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none bg-stone-50">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
+                            <input type="tel" id="phone" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none bg-stone-50">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Location / Address</label>
+                            <input type="text" id="address" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none bg-stone-50" placeholder="e.g., Kabale Town">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
+                    <h2 class="font-serif text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand-pink"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/><path d="M7 15h.01"/><path d="M12 15h.01"/><path d="M17 15h.01"/></svg>
+                        Payment Method
+                    </h2>
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-4 p-4 border border-stone-300 rounded-lg cursor-pointer hover:border-brand-pink transition has-[:checked]:border-brand-pink has-[:checked]:bg-pink-50">
+                            <input type="radio" name="payment" value="momo" checked class="w-5 h-5 text-brand-pink focus:ring-brand-pink">
+                            <div>
+                                <span class="font-bold text-gray-900">Mobile Money (MTN / Airtel)</span>
+                                <p class="text-sm text-gray-500">Pay instantly using your mobile wallet.</p>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-4 p-4 border border-stone-300 rounded-lg cursor-pointer hover:border-brand-pink transition has-[:checked]:border-brand-pink has-[:checked]:bg-pink-50">
+                            <input type="radio" name="payment" value="cod" class="w-5 h-5 text-brand-pink focus:ring-brand-pink">
+                            <div>
+                                <span class="font-bold text-gray-900">Cash on Delivery</span>
+                                <p class="text-sm text-gray-500">Pay when your order arrives at your doorstep.</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 h-fit sticky top-24">
+                <h2 class="font-serif text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
+                
+                <div id="checkoutItems" class="space-y-3 mb-6 max-h-60 overflow-y-auto">
+                    <!-- Items injected here -->
+                </div>
+
+                <div class="space-y-3 border-t border-stone-200 pt-4">
+                    <div class="flex justify-between text-gray-600 text-sm">
+                        <span>Subtotal</span>
+                        <span id="checkoutSubtotal">0 UGX</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600 text-sm">
+                        <span>Delivery Fee</span>
+                        <span>5,000 UGX</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-lg text-gray-900 pt-2">
+                        <span>Total</span>
+                        <span id="checkoutTotal">5,000 UGX</span>
+                    </div>
+                </div>
+
+                <button onclick="placeOrder()" class="w-full bg-brand-pink text-white font-bold py-3.5 rounded-lg hover:bg-pink-700 transition shadow-md text-base mt-6">
+                    Place Order
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 text-center text-gray-500 text-sm mt-auto">
+        © 2026 Val Investments. All rights reserved.
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        const cart = JSON.parse(localStorage.getItem('valcakes_cart')) || [];
+        const user = JSON.parse(localStorage.getItem('user')) || { full_name: '', phone_number: '' };
+        const deliveryFee = 5000;
+
+        // Pre-fill form if logged in
+        document.getElementById('fullName').value = user.full_name || '';
+        document.getElementById('phone').value = user.phone_number || '';
+
+        function renderCheckoutSummary() {
+            const container = document.getElementById('checkoutItems');
+            let subtotal = 0;
+            let html = '';
+
+            if (cart.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-sm">Your cart is empty.</p>';
+            } else {
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    html += `
+                        <div class="flex justify-between items-center text-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-stone-100 text-gray-700 font-bold px-2 py-1 rounded text-xs">${item.quantity}x</span>
+                                <span class="text-gray-800 truncate max-w-[150px]">${item.name}</span>
+                            </div>
+                            <span class="font-semibold text-gray-900">${itemTotal.toLocaleString()} UGX</span>
+                        </div>`;
+                });
+            }
+
+            container.innerHTML = html;
+            document.getElementById('checkoutSubtotal').innerText = subtotal.toLocaleString() + ' UGX';
+            document.getElementById('checkoutTotal').innerText = (subtotal + deliveryFee).toLocaleString() + ' UGX';
+        }
+
+        function placeOrder() {
+            if (cart.length === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+
+            const name = document.getElementById('fullName').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+
+            if (!name || !phone || !address) {
+                alert("Please fill in all delivery details.");
+                return;
+            }
+
+            // Simulate processing
+            const btn = document.querySelector('button[onclick="placeOrder()"]');
+            btn.innerText = 'Processing...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                // Clear the cart
+                localStorage.removeItem('valcakes_cart');
+                
+                // Show success and redirect (Matches your flowchart: Order Created -> Products page)
+                alert(`Success! Order placed for ${name}.\nPayment: ${paymentMethod === 'momo' ? 'Mobile Money' : 'Cash on Delivery'}\n\nWe will call you on ${phone} shortly!`);
+                window.location.href = 'shopping.html'; 
+            }, 1500);
+        }
+
+        renderCheckoutSummary();
+    </script>
+</body>
+</html>
