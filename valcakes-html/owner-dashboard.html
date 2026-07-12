@@ -176,7 +176,7 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        const API_BASE = 'https://val-app.onrender.com.onrender.com/api/shop/';
+        const API_BASE = 'https://val-app.onrender.com/api/shop/';
         let token = localStorage.getItem('access_token');
         let user = JSON.parse(localStorage.getItem('user'));
 
@@ -369,7 +369,9 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     }
 });
        
-       // 4. Handle Item Form Submission (WITH IMAGE UPLOAD)
+      // ... (keep everything before line 322)
+
+// 4. Handle Item Form Submission (WITH IMAGE UPLOAD)
 document.getElementById('itemForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -384,10 +386,19 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     // Handle image file
     const imageFile = document.getElementById('itemImage').files[0];
     if (imageFile) {
+        if (imageFile.size > 5 * 1024 * 1024) {
+            alert('Image file is too large. Max size is 5MB.');
+            return;
+        }
         formData.append('image', imageFile);
-        console.log('Uploading image:', imageFile.name);
+        console.log('📁 File selected:', imageFile.name, 'Size:', imageFile.size, 'bytes');
     } else {
-        console.log('No image selected');
+        console.log('⚠️ No image file selected');
+    }
+
+    console.log('📦 Sending FormData:');
+    for (let [key, value] of formData.entries()) {
+        console.log(`  ${key}:`, value instanceof File ? `File(${value.name})` : value);
     }
 
     try {
@@ -395,35 +406,38 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
             method: 'POST',
             headers: { 
                 'Authorization': `Bearer ${token}`
-                // DON'T set Content-Type - browser will set it automatically for FormData
             },
             body: formData
         });
         
-        console.log('Response status:', response.status);
+        console.log('📥 Response status:', response.status);
         const responseData = await response.json();
-        console.log('Response data:', responseData);
+        console.log('📥 Response data:', responseData);
         
         if (!response.ok) {
-            throw new Error(responseData.detail || 'Failed to add item');
+            throw new Error(responseData.detail || responseData.image?.[0] || 'Failed to add item');
         }
         
         closeModal('itemModal');
         document.getElementById('itemForm').reset();
-        await fetchItems(); // Wait for items to load
+        await fetchItems();
         alert('Item added successfully!');
     } catch (err) { 
-        console.error('Error adding item:', err);
+        console.error('❌ Error adding item:', err);
         alert('Failed to add item: ' + err.message);
     }
 });
 
-        // 5. Delete Functions
-        async function deleteCategory(id) {
-            if(!confirm('Delete this category?')) return;
-            await fetch(API_BASE + `categories/${id}/`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-            fetchCategories();
-        }
+// DELETE EVERYTHING FROM LINE 361 TO 397 (the duplicate event listener)
+
+// 5. Delete Functions
+async function deleteCategory(id) {
+    if(!confirm('Delete this category?')) return;
+    await fetch(API_BASE + `categories/${id}/`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+    fetchCategories();
+}
+
+// ... (keep the rest)
 
         async function deleteItem(id) {
             if(!confirm('Delete this item?')) return;
