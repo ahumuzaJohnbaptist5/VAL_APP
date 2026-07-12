@@ -125,3 +125,5 @@ DEFAULT_FROM_EMAIL = 'Val Investments <johnbaptistahumuza5@gmail.com>'
 if os.environ.get('DATABASE_URL'):
     import dj_database_url
     DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
+
+    ADMIN_SITE_HEADER = "Val Admin"
