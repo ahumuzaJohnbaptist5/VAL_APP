@@ -5,9 +5,10 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-ba_a-(qy1(fl2=*ya=+$f+h1m30b(v@pe6qf1#pgv=9no39gub'
-DEBUG = True
 
-# FIX #1: Allow all hosts in development
+# FIX: DEBUG should be False in production
+DEBUG = os.environ.get('RENDER', 'False') != 'True'
+
 ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = 'users.User'
@@ -23,15 +24,17 @@ INSTALLED_APPS = [
     # Third party apps
     'rest_framework',
     'corsheaders',
+    'whitenoise.runserver_nostatic',  # ADD THIS
     
     # Local apps
     'users',
-    'shop',  # Changed from 'shopping' to match our clean build
+    'shop',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', # MUST BE AT THE VERY TOP
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # ADD THIS
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -40,15 +43,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# FIX #2: Allow all origins for development (this is the magic fix!)
 CORS_ALLOW_ALL_ORIGINS = True
-
-# If you want to be specific, use this instead:
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-#     "http://localhost:5500",
-#     "http://127.0.0.1:5500",
-# ]
 
 ROOT_URLCONF = 'core.urls'
 
@@ -76,7 +71,6 @@ DATABASES = {
     }
 }
 
-# FIX #3: Add proper permissions
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -103,15 +97,16 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+# FIX: Add STATIC_ROOT and WhiteNoise storage
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # ADD THIS
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # ADD THIS
 
-# FIX #4: Proper media settings
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# File upload limits
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -122,6 +117,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp-relay.brevo.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('BREVO_API_KEY')  # API key as username
-EMAIL_HOST_PASSWORD = os.environ.get('BREVO_API_KEY')  # API key as password
-DEFAULT_FROM_EMAIL = 'Val Investments <johnbaptistahumuza5@gmail.com>'  # YOUR ACTUAL EMAIL!
+EMAIL_HOST_USER = os.environ.get('BREVO_API_KEY')
+EMAIL_HOST_PASSWORD = os.environ.get('BREVO_API_KEY')
+DEFAULT_FROM_EMAIL = 'Val Investments <johnbaptistahumuza5@gmail.com>'
+
+# Production database (if using PostgreSQL on Render)
+if os.environ.get('DATABASE_URL'):
+    import dj_database_url
+    DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
