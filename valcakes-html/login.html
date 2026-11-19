@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Val Cakes</title>
+    
+    <script src="config.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
@@ -69,8 +71,7 @@
 
         try {
             // FIXED: Proper fetch call with correct URL
-            const response = await fetch('https://val-app.onrender.com/api/users/login/', {
-                method: 'POST',
+            const response = await fetch(USERS_API + 'login/', {                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });

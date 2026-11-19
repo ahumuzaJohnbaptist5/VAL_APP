@@ -6,6 +6,7 @@
     <title>Checkout - Val Cakes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
     <script>
         tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Playfair Display', 'serif'], }, colors: { brand: { pink: '#db2777', dark: '#1c1917', } } } } }
     </script>
@@ -35,7 +36,7 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
                     <h2 class="font-serif text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand-pink"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                        Delivery Details
+                        Customer & Delivery Details
                     </h2>
                     <form id="deliveryForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="md:col-span-2">
@@ -47,31 +48,37 @@
                             <input type="tel" id="phone" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none bg-stone-50">
                         </div>
                         <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
+                            <input type="email" id="email" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none bg-stone-50" placeholder="Needed to receive your price quote">
+                        </div>
+                        <div class="md:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Location / Address</label>
                             <input type="text" id="address" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none bg-stone-50" placeholder="e.g., Kabale Town">
                         </div>
                     </form>
+                    <p class="text-xs text-gray-500 mt-3">Add an email address so staff can send your quoted price to you automatically.</p>
                 </div>
 
-                <!-- Payment Method -->
+                <!-- Payment Preference -->
                 <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
                     <h2 class="font-serif text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand-pink"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/><path d="M7 15h.01"/><path d="M12 15h.01"/><path d="M17 15h.01"/></svg>
-                        Payment Method
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand-pink"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></svg>
+                        Payment Preference
                     </h2>
+                    <p class="text-sm text-gray-600 mb-4">Final price will be quoted by staff after reviewing your custom edits. You can indicate your preferred payment method.</p>
                     <div class="space-y-3">
                         <label class="flex items-center gap-4 p-4 border border-stone-300 rounded-lg cursor-pointer hover:border-brand-pink transition has-[:checked]:border-brand-pink has-[:checked]:bg-pink-50">
                             <input type="radio" name="payment" value="momo" checked class="w-5 h-5 text-brand-pink focus:ring-brand-pink">
                             <div>
                                 <span class="font-bold text-gray-900">Mobile Money (MTN / Airtel)</span>
-                                <p class="text-sm text-gray-500">Pay instantly using your mobile wallet.</p>
+                                <p class="text-sm text-gray-500">Preferred for payment after quote approval.</p>
                             </div>
                         </label>
                         <label class="flex items-center gap-4 p-4 border border-stone-300 rounded-lg cursor-pointer hover:border-brand-pink transition has-[:checked]:border-brand-pink has-[:checked]:bg-pink-50">
                             <input type="radio" name="payment" value="cod" class="w-5 h-5 text-brand-pink focus:ring-brand-pink">
                             <div>
                                 <span class="font-bold text-gray-900">Cash on Delivery</span>
-                                <p class="text-sm text-gray-500">Pay when your order arrives at your doorstep.</p>
+                                <p class="text-sm text-gray-500">Preferred for payment on delivery after quote approval.</p>
                             </div>
                         </label>
                     </div>
@@ -80,29 +87,29 @@
 
             <!-- Order Summary -->
             <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 h-fit sticky top-24">
-                <h2 class="font-serif text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
+                <h2 class="font-serif text-xl font-bold text-gray-900 mb-6">Order Request Summary</h2>
                 
-                <div id="checkoutItems" class="space-y-3 mb-6 max-h-60 overflow-y-auto">
+                <div id="checkoutItems" class="space-y-4 mb-6 max-h-80 overflow-y-auto">
                     <!-- Items injected here -->
                 </div>
 
                 <div class="space-y-3 border-t border-stone-200 pt-4">
                     <div class="flex justify-between text-gray-600 text-sm">
-                        <span>Subtotal</span>
+                        <span>Estimated subtotal (base prices)</span>
                         <span id="checkoutSubtotal">0 UGX</span>
                     </div>
-                    <div class="flex justify-between text-gray-600 text-sm">
-                        <span>Delivery Fee</span>
-                        <span>5,000 UGX</span>
-                    </div>
                     <div class="flex justify-between font-bold text-lg text-gray-900 pt-2">
-                        <span>Total</span>
-                        <span id="checkoutTotal">5,000 UGX</span>
+                        <span>Final price</span>
+                        <span>Quoted by staff</span>
                     </div>
                 </div>
 
-                <button onclick="placeOrder()" class="w-full bg-brand-pink text-white font-bold py-3.5 rounded-lg hover:bg-pink-700 transition shadow-md text-base mt-6">
-                    Place Order
+                <div class="bg-pink-50 border border-pink-100 rounded-lg p-3 text-sm text-gray-700 mt-4">
+                    Submit this request to send your cake selection and custom edits to staff. You will receive a quoted price by email and in your profile.
+                </div>
+
+                <button id="placeOrderBtn" onclick="placeOrder()" class="w-full bg-brand-pink text-white font-bold py-3.5 rounded-lg hover:bg-pink-700 transition shadow-md text-base mt-6">
+                    Submit Order Request
                 </button>
             </div>
         </div>
@@ -116,12 +123,22 @@
     <!-- JAVASCRIPT -->
     <script>
         const cart = JSON.parse(localStorage.getItem('valcakes_cart')) || [];
-        const user = JSON.parse(localStorage.getItem('user')) || { full_name: '', phone_number: '' };
-        const deliveryFee = 5000;
+        const user = JSON.parse(localStorage.getItem('user')) || {};
+        const token = localStorage.getItem('access_token');
 
         // Pre-fill form if logged in
         document.getElementById('fullName').value = user.full_name || '';
         document.getElementById('phone').value = user.phone_number || '';
+        document.getElementById('email').value = user.email || '';
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
 
         function renderCheckoutSummary() {
             const container = document.getElementById('checkoutItems');
@@ -132,53 +149,107 @@
                 container.innerHTML = '<p class="text-gray-500 text-sm">Your cart is empty.</p>';
             } else {
                 cart.forEach(item => {
-                    const itemTotal = item.price * item.quantity;
+                    const unit = Number(item.price) || 0;
+                    const qty = Number(item.quantity) || 1;
+                    const itemTotal = unit * qty;
                     subtotal += itemTotal;
+                    const edits = (item.custom_edits || '').trim();
                     html += `
-                        <div class="flex justify-between items-center text-sm">
-                            <div class="flex items-center gap-2">
-                                <span class="bg-stone-100 text-gray-700 font-bold px-2 py-1 rounded text-xs">${item.quantity}x</span>
-                                <span class="text-gray-800 truncate max-w-[150px]">${item.name}</span>
+                        <div class="border border-stone-200 rounded-lg p-3">
+                            <div class="flex justify-between items-start gap-3 text-sm">
+                                <div>
+                                    <p class="font-semibold text-gray-900">${qty}x ${escapeHtml(item.name || 'Item')}</p>
+                                    <p class="text-xs text-gray-500 mt-1">Base estimate: ${itemTotal.toLocaleString()} UGX</p>
+                                </div>
                             </div>
-                            <span class="font-semibold text-gray-900">${itemTotal.toLocaleString()} UGX</span>
+                            <div class="mt-2 text-sm text-gray-700 bg-stone-50 rounded p-2">
+                                <span class="font-semibold">Custom edits:</span> ${edits ? escapeHtml(edits) : '<span class="text-gray-500">None provided</span>'}
+                            </div>
                         </div>`;
                 });
             }
 
             container.innerHTML = html;
             document.getElementById('checkoutSubtotal').innerText = subtotal.toLocaleString() + ' UGX';
-            document.getElementById('checkoutTotal').innerText = (subtotal + deliveryFee).toLocaleString() + ' UGX';
         }
 
-        function placeOrder() {
+        async function placeOrder() {
             if (cart.length === 0) {
                 alert("Your cart is empty!");
                 return;
             }
 
-            const name = document.getElementById('fullName').value;
-            const phone = document.getElementById('phone').value;
-            const address = document.getElementById('address').value;
-            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+            const name = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || '';
 
             if (!name || !phone || !address) {
-                alert("Please fill in all delivery details.");
+                alert("Please fill in your name, phone number, and delivery address.");
                 return;
             }
+            if (!email) {
+                const proceed = confirm("You did not provide an email address. Staff need your email to send the quoted price automatically. Continue without email?");
+                if (!proceed) return;
+            }
 
-            // Simulate processing
-            const btn = document.querySelector('button[onclick="placeOrder()"]');
-            btn.innerText = 'Processing...';
+            const payload = {
+                customer_name: name,
+                customer_phone: phone,
+                customer_email: email,
+                delivery_address: address,
+                payment_method: paymentMethod,
+                items: cart.map(item => ({
+                    cake: item.id || null,
+                    quantity: Number(item.quantity) || 1,
+                    custom_edits: (item.custom_edits || '').trim()
+                }))
+            };
+
+            const btn = document.getElementById('placeOrderBtn');
+            const originalText = btn.innerText;
+            btn.innerText = 'Submitting...';
             btn.disabled = true;
 
-            setTimeout(() => {
-                // Clear the cart
+            try {
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+
+                const response = await fetch(SHOP_API + 'orders/', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(payload)
+                });
+
+                let data = null;
+                try { data = await response.json(); } catch (_) {}
+
+                if (!response.ok) {
+                    let message = 'Failed to submit order request.';
+                    if (data) {
+                        if (typeof data.detail === 'string') message = data.detail;
+                        else if (typeof data === 'object') {
+                            const parts = [];
+                            for (const [k, v] of Object.entries(data)) {
+                                parts.push(`${k}: ${Array.isArray(v) ? v.join(', ') : (typeof v === 'object' ? JSON.stringify(v) : v)}`);
+                            }
+                            if (parts.length) message = parts.join('\n');
+                        }
+                    }
+                    throw new Error(message);
+                }
+
                 localStorage.removeItem('valcakes_cart');
-                
-                // Show success and redirect (Matches your flowchart: Order Created -> Products page)
-                alert(`Success! Order placed for ${name}.\nPayment: ${paymentMethod === 'momo' ? 'Mobile Money' : 'Cash on Delivery'}\n\nWe will call you on ${phone} shortly!`);
-                window.location.href = 'shopping.html'; 
-            }, 1500);
+                alert(`Order request #${data.id} submitted successfully!\n\nStaff will review your custom edits and send you a quoted price${email ? ' to ' + email : ''}. You can track and approve the quote from your profile.`);
+                window.location.href = 'profile.html';
+            } catch (err) {
+                console.error('Order submission error:', err);
+                alert('Could not submit your order request.\n\n' + err.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
 
         renderCheckoutSummary();

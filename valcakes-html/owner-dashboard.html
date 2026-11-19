@@ -58,7 +58,7 @@
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
                 <p class="text-sm text-gray-500 mb-1">Total Items</p>
                 <p id="totalItems" class="text-3xl font-bold text-gray-900">0</p>
@@ -66,6 +66,10 @@
             <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
                 <p class="text-sm text-gray-500 mb-1">Total Categories</p>
                 <p id="totalCategories" class="text-3xl font-bold text-gray-900">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                <p class="text-sm text-gray-500 mb-1">Cake Orders</p>
+                <p id="totalOrders" class="text-3xl font-bold text-gray-900">0</p>
             </div>
         </div>
 
@@ -81,7 +85,7 @@
         </div>
 
         <!-- Items Table -->
-        <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden mb-8">
             <div class="flex justify-between items-center p-6 border-b border-stone-200">
                 <h2 class="font-serif text-xl font-bold text-gray-900">Shop Items</h2>
                 <button onclick="openModal('itemModal')" class="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition">+ Add Item</button>
@@ -101,6 +105,35 @@
                     </thead>
                     <tbody id="itemsTableBody" class="divide-y divide-stone-100 text-sm">
                         <tr><td colspan="7" class="p-4 text-center text-gray-500">Loading items...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+            <div class="flex justify-between items-center p-6 border-b border-stone-200">
+                <div>
+                    <h2 class="font-serif text-xl font-bold text-gray-900">Cake Orders & Quotes</h2>
+                    <p class="text-sm text-gray-500">Review custom edits, send quoted prices to customers, and track approvals.</p>
+                </div>
+                <button onclick="fetchOrders()" class="px-4 py-2 border border-stone-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-stone-50 transition">Refresh</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-stone-50 text-gray-600 text-sm uppercase">
+                        <tr>
+                            <th class="p-4">Order</th>
+                            <th class="p-4">Customer</th>
+                            <th class="p-4">Items / Edits</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4">Quoted Price</th>
+                            <th class="p-4">Created</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody" class="divide-y divide-stone-100 text-sm">
+                        <tr><td colspan="7" class="p-4 text-center text-gray-500">Loading orders...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -174,9 +207,48 @@
         </div>
     </div>
 
+    <!-- Order Details / Quote Modal -->
+    <div id="orderModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 w-full max-w-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start gap-4 mb-4">
+                <div>
+                    <h3 id="orderModalTitle" class="font-serif text-xl font-bold text-gray-900">Order Details</h3>
+                    <p id="orderModalSubtitle" class="text-sm text-gray-500"></p>
+                </div>
+                <button onclick="closeModal('orderModal')" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
+            </div>
+
+            <div id="orderModalContent" class="space-y-4"></div>
+
+            <div id="quoteFormSection" class="mt-6 border-t border-stone-200 pt-6">
+                <h4 class="font-semibold text-gray-900 mb-3">Send Price Quote</h4>
+                <form id="quoteForm" class="space-y-4">
+                    <input type="hidden" id="quoteOrderId">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Quoted Price (UGX)</label>
+                            <input type="number" id="quotePrice" min="1" step="0.01" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Message to customer (optional)</label>
+                            <textarea id="quoteMessage" rows="3" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none" placeholder="e.g. Includes custom decorations and delivery. Please approve to proceed."></textarea>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500">Saving this quote will email the customer automatically (if an email address is on the order).</p>
+                    <div class="flex justify-end gap-3">
+                        <button type="button" onclick="closeModal('orderModal')" class="px-4 py-2 text-gray-600 hover:bg-stone-100 rounded-lg">Close</button>
+                        <button type="submit" id="quoteSubmitBtn" class="bg-brand-pink text-white px-6 py-2 rounded-lg font-semibold hover:bg-pink-700">Send Quote</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- JAVASCRIPT LOGIC -->
+    
+    <script src="config.js"></script>
     <script>
-        const API_BASE = 'https://val-app.onrender.com/api/shop/';
+        const API_BASE = SHOP_API;
         let token = localStorage.getItem('access_token');
         let user = JSON.parse(localStorage.getItem('user'));
 
@@ -188,17 +260,216 @@
         }
 
         // 2. Fetch Data on Load
-document.addEventListener('DOMContentLoaded', () => {
-    // Check if token exists
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-        alert('Please log in first');
-        window.location.href = 'login.html';
-        return;
-    }
-    fetchCategories();
-    fetchItems();
-});
+        let allOrders = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if token exists
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                alert('Please log in first');
+                window.location.href = 'login.html';
+                return;
+            }
+            fetchCategories();
+            fetchItems();
+            fetchOrders();
+        });
+
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            if (isNaN(d)) return dateStr;
+            return d.toLocaleString();
+        }
+
+        function statusBadge(status, label) {
+            const styles = {
+                pending_quote: 'bg-amber-100 text-amber-800',
+                quoted: 'bg-blue-100 text-blue-800',
+                approved: 'bg-green-100 text-green-800',
+                rejected: 'bg-red-100 text-red-800',
+                cancelled: 'bg-stone-200 text-stone-700'
+            };
+            const cls = styles[status] || 'bg-stone-100 text-stone-700';
+            return `<span class="px-2 py-1 rounded-full text-xs font-bold ${cls}">${escapeHtml(label || status || '')}</span>`;
+        }
+
+        async function fetchOrders() {
+            const token = localStorage.getItem('access_token');
+            const tbody = document.getElementById('ordersTableBody');
+            try {
+                const res = await fetch(API_BASE + 'orders/', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-red-500">You do not have permission to view orders. Please log in as staff/admin.</td></tr>';
+                    return;
+                }
+
+                const data = await res.json();
+                if (!Array.isArray(data)) {
+                    console.error('Expected orders array but got:', data);
+                    tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-red-500">Failed to load orders.</td></tr>';
+                    return;
+                }
+
+                allOrders = data;
+                document.getElementById('totalOrders').innerText = data.length;
+                renderOrders();
+            } catch (err) {
+                console.error('Error fetching orders', err);
+                tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-red-500">Error loading orders.</td></tr>';
+            }
+        }
+
+        function renderOrders() {
+            const tbody = document.getElementById('ordersTableBody');
+            if (!allOrders.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500">No cake orders yet.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allOrders.map(order => {
+                const items = Array.isArray(order.items) ? order.items : [];
+                const editsPreview = items.map(i => {
+                    const edits = (i.custom_edits || '').trim();
+                    return `${i.quantity}x ${i.cake_name}${edits ? ': ' + edits : ''}`;
+                }).join(' | ');
+                const shortEdits = editsPreview.length > 120 ? editsPreview.slice(0, 120) + '…' : (editsPreview || 'No items');
+                const quoted = order.quoted_price ? `${parseFloat(order.quoted_price).toLocaleString()} UGX` : '<span class="text-gray-400">Not quoted</span>';
+                const canQuote = order.status === 'pending_quote' || order.status === 'quoted';
+                const actionLabel = canQuote ? (order.status === 'quoted' ? 'Update Quote' : 'Quote') : 'View';
+
+                return `
+                    <tr class="hover:bg-stone-50 align-top">
+                        <td class="p-4 font-semibold text-gray-900">#${order.id}</td>
+                        <td class="p-4">
+                            <div class="font-medium text-gray-900">${escapeHtml(order.customer_name || '')}</div>
+                            <div class="text-gray-600">${escapeHtml(order.customer_phone || '')}</div>
+                            <div class="text-gray-500 text-xs">${escapeHtml(order.customer_email || 'No email')}</div>
+                        </td>
+                        <td class="p-4 text-gray-700 max-w-md">
+                            <div class="line-clamp-3">${escapeHtml(shortEdits)}</div>
+                        </td>
+                        <td class="p-4">${statusBadge(order.status, order.status_display)}</td>
+                        <td class="p-4 font-semibold text-gray-900">${quoted}</td>
+                        <td class="p-4 text-gray-600 whitespace-nowrap">${escapeHtml(formatDate(order.created_at))}</td>
+                        <td class="p-4 text-right">
+                            <button onclick="openOrderModal(${order.id})" class="px-3 py-1.5 rounded-lg text-xs font-semibold ${canQuote ? 'bg-brand-pink text-white hover:bg-pink-700' : 'bg-stone-100 text-gray-700 hover:bg-stone-200'} transition">${actionLabel}</button>
+                        </td>
+                    </tr>`;
+            }).join('');
+        }
+
+        function openOrderModal(orderId) {
+            const order = allOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            document.getElementById('orderModalTitle').innerText = `Order #${order.id}`;
+            document.getElementById('orderModalSubtitle').innerText = `${order.status_display || order.status} • ${formatDate(order.created_at)}`;
+            document.getElementById('quoteOrderId').value = order.id;
+            document.getElementById('quotePrice').value = order.quoted_price || '';
+            document.getElementById('quoteMessage').value = order.quote_message || '';
+
+            const itemsHtml = (order.items || []).map(item => {
+                const edits = (item.custom_edits || '').trim();
+                return `
+                    <div class="border border-stone-200 rounded-lg p-4">
+                        <div class="flex justify-between gap-4">
+                            <div>
+                                <p class="font-semibold text-gray-900">${item.quantity} x ${escapeHtml(item.cake_name || 'Item')}</p>
+                                <p class="text-sm text-gray-500">Base price: ${item.base_price != null ? parseFloat(item.base_price).toLocaleString() + ' UGX' : 'N/A'}</p>
+                            </div>
+                        </div>
+                        <div class="mt-3 bg-pink-50 border border-pink-100 rounded p-3 text-sm text-gray-800">
+                            <span class="font-semibold">Custom edits requested:</span><br>
+                            ${edits ? escapeHtml(edits).replace(/\n/g, '<br>') : '<span class="text-gray-500">None provided</span>'}
+                        </div>
+                    </div>`;
+            }).join('');
+
+            const canQuote = order.status === 'pending_quote' || order.status === 'quoted';
+            document.getElementById('quoteFormSection').style.display = canQuote ? 'block' : 'none';
+
+            document.getElementById('orderModalContent').innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-stone-50 rounded-lg p-4 border border-stone-200">
+                        <h4 class="font-semibold text-gray-900 mb-2">Customer</h4>
+                        <p><span class="text-gray-500">Name:</span> ${escapeHtml(order.customer_name || '')}</p>
+                        <p><span class="text-gray-500">Phone:</span> ${escapeHtml(order.customer_phone || '')}</p>
+                        <p><span class="text-gray-500">Email:</span> ${escapeHtml(order.customer_email || 'N/A')}</p>
+                        <p><span class="text-gray-500">Address:</span> ${escapeHtml(order.delivery_address || 'N/A')}</p>
+                    </div>
+                    <div class="bg-stone-50 rounded-lg p-4 border border-stone-200">
+                        <h4 class="font-semibold text-gray-900 mb-2">Order</h4>
+                        <p><span class="text-gray-500">Status:</span> ${escapeHtml(order.status_display || order.status || '')}</p>
+                        <p><span class="text-gray-500">Payment pref:</span> ${escapeHtml(order.payment_method || 'N/A')}</p>
+                        <p><span class="text-gray-500">Quoted price:</span> ${order.quoted_price ? parseFloat(order.quoted_price).toLocaleString() + ' UGX' : 'Not quoted yet'}</p>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-900 mb-2">Items & Custom Edits</h4>
+                    <div class="space-y-3">${itemsHtml || '<p class="text-gray-500">No items.</p>'}</div>
+                </div>
+            `;
+
+            openModal('orderModal');
+        }
+
+        document.getElementById('quoteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('access_token');
+            const orderId = document.getElementById('quoteOrderId').value;
+            const quotedPrice = document.getElementById('quotePrice').value;
+            const quoteMessage = document.getElementById('quoteMessage').value.trim();
+            const btn = document.getElementById('quoteSubmitBtn');
+
+            if (!orderId || !quotedPrice) return;
+            btn.disabled = true;
+            const original = btn.innerText;
+            btn.innerText = 'Sending...';
+
+            try {
+                const res = await fetch(API_BASE + `orders/${orderId}/quote/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ quoted_price: quotedPrice, quote_message: quoteMessage })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(data.detail || JSON.stringify(data) || 'Failed to send quote');
+                }
+
+                let msg = `Quote saved for order #${orderId}.`;
+                if (data.quote_email_sent) msg += '\nThe customer was emailed the quoted price.';
+                else if (data.quote_email_warning) msg += '\n' + data.quote_email_warning;
+                else if (data.quote_email_error) msg += '\n' + data.quote_email_error;
+                alert(msg);
+                closeModal('orderModal');
+                await fetchOrders();
+            } catch (err) {
+                console.error('Quote submit error:', err);
+                alert('Failed to send quote: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = original;
+            }
+        });
 
 async function fetchCategories() {
     const token = localStorage.getItem('access_token');
@@ -237,7 +508,7 @@ async function fetchCategories() {
             list.innerHTML += `
                 <div class="bg-purple-50 border border-purple-200 px-4 py-2 rounded-lg flex items-center gap-2">
                     <span class="font-semibold text-purple-900">${cat.name}</span>
-                    <button onclick="deleteCategory(${cat.id})" class="text-purple-400 hover:text-red-600"></button>
+                    <button type="button" onclick="deleteCategory(${cat.id})" class="text-purple-400 hover:text-red-600" aria-label="Delete category">&times;</button>
                 </div>`;
             select.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
         });
@@ -309,9 +580,43 @@ const imageUrl = item.image ? encodeURI(item.image) : 'data:image/svg+xml,%3Csvg
         console.error('Error fetching items', err);
     }
 }
+// Handle category creation
+document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const button = form.querySelector('[type="submit"]');
+    if (button.disabled) return;
+    button.disabled = true;
+    try {
+        const response = await fetch(API_BASE + 'categories/', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: document.getElementById('catName').value.trim(),
+                description: document.getElementById('catDesc').value.trim()
+            })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || data.name?.[0] || 'Failed to add category.');
+        form.reset();
+        closeModal('categoryModal');
+        await fetchCategories();
+    } catch (error) {
+        alert(error.message);
+    } finally {
+        button.disabled = false;
+    }
+});
+
         // 4. Handle Item Form Submission (WITH IMAGE UPLOAD)
 document.getElementById('itemForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const form = e.currentTarget;
+    const submitButton = form.querySelector('[type="submit"]');
+    if (form.dataset.submitting === 'true') return;
     
     const formData = new FormData();
     formData.append('name', document.getElementById('itemName').value);
@@ -341,11 +646,13 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
         console.log(`  ${key}:`, value instanceof File ? `File(${value.name})` : value);
     }
 
+    form.dataset.submitting = 'true';
+    if (submitButton) submitButton.disabled = true;
     try {
         const response = await fetch(API_BASE + 'items/', {
             method: 'POST',
             headers: { 
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                 // IMPORTANT: Don't set Content-Type header - browser sets it automatically for FormData
             },
             body: formData
@@ -366,69 +673,11 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     } catch (err) { 
         console.error('❌ Error adding item:', err);
         alert('Failed to add item: ' + err.message);
+    } finally {
+        form.dataset.submitting = 'false';
+        if (submitButton) submitButton.disabled = false;
     }
 });
-       
-      // ... (keep everything before line 322)
-
-// 4. Handle Item Form Submission (WITH IMAGE UPLOAD)
-document.getElementById('itemForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const formData = new FormData();
-    formData.append('name', document.getElementById('itemName').value);
-    formData.append('description', document.getElementById('itemDesc').value);
-    formData.append('price', document.getElementById('itemPrice').value);
-    formData.append('stock_quantity', document.getElementById('itemStock').value);
-    formData.append('category', document.getElementById('itemCategory').value);
-    formData.append('in_stock', document.getElementById('itemInStock').checked);
-    
-    // Handle image file
-    const imageFile = document.getElementById('itemImage').files[0];
-    if (imageFile) {
-        if (imageFile.size > 5 * 1024 * 1024) {
-            alert('Image file is too large. Max size is 5MB.');
-            return;
-        }
-        formData.append('image', imageFile);
-        console.log('📁 File selected:', imageFile.name, 'Size:', imageFile.size, 'bytes');
-    } else {
-        console.log('⚠️ No image file selected');
-    }
-
-    console.log('📦 Sending FormData:');
-    for (let [key, value] of formData.entries()) {
-        console.log(`  ${key}:`, value instanceof File ? `File(${value.name})` : value);
-    }
-
-    try {
-        const response = await fetch(API_BASE + 'items/', {
-            method: 'POST',
-            headers: { 
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData
-        });
-        
-        console.log('📥 Response status:', response.status);
-        const responseData = await response.json();
-        console.log('📥 Response data:', responseData);
-        
-        if (!response.ok) {
-            throw new Error(responseData.detail || responseData.image?.[0] || 'Failed to add item');
-        }
-        
-        closeModal('itemModal');
-        document.getElementById('itemForm').reset();
-        await fetchItems();
-        alert('Item added successfully!');
-    } catch (err) { 
-        console.error('❌ Error adding item:', err);
-        alert('Failed to add item: ' + err.message);
-    }
-});
-
-// DELETE EVERYTHING FROM LINE 361 TO 397 (the duplicate event listener)
 
 // 5. Delete Functions
 async function deleteCategory(id) {

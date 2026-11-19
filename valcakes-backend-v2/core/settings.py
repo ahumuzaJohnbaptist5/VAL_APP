@@ -113,6 +113,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('BREVO_API_KEY')
 EMAIL_HOST_PASSWORD = os.environ.get('BREVO_API_KEY')
 DEFAULT_FROM_EMAIL = 'Val Investments <johnbaptistahumuza5@gmail.com>'
+STAFF_NOTIFICATION_EMAIL = os.environ.get('STAFF_NOTIFICATION_EMAIL', 'johnbaptistahumuza5@gmail.com')
 
 # Production database
 if os.environ.get('DATABASE_URL'):

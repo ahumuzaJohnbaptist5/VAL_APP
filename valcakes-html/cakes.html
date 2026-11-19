@@ -6,7 +6,9 @@
     <title>Our Cakes - Val Cakes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>
+   
+    <script src="config.js"></script>
+   <script>
         tailwind.config = {
             theme: {
                 extend: {
@@ -68,6 +70,29 @@
 
     </main>
 
+    <!-- Customize / Add to Cart Modal -->
+    <div id="customizeModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+            <h3 id="customizeItemName" class="font-serif text-xl font-bold text-gray-900 mb-1">Customize Cake</h3>
+            <p class="text-sm text-gray-500 mb-4">Add your custom edits for staff (message on cake, colors, size, flavor, toppings, etc.). Staff will review and send you a price quote.</p>
+            <form id="customizeForm" class="space-y-4">
+                <input type="hidden" id="customizeItemId">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Quantity</label>
+                    <input type="number" id="customizeQuantity" min="1" value="1" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Custom edits / instructions</label>
+                    <textarea id="customizeEdits" rows="5" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none" placeholder="e.g. Write 'Happy Birthday Sarah', chocolate flavor, pink and white theme, add strawberries on top, serve 20 people"></textarea>
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeCustomizeModal()" class="px-4 py-2 text-gray-600 hover:bg-stone-100 rounded-lg">Cancel</button>
+                    <button type="submit" class="bg-brand-pink text-white px-6 py-2 rounded-lg font-semibold hover:bg-pink-700">Add to Cart</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-16 mt-auto">
         <div class="max-w-7xl mx-auto px-6">
@@ -103,7 +128,10 @@
 
     <!-- JAVASCRIPT -->
     <script>
-const API_BASE = 'https://val-app.onrender.com/api/shop/';        let allCategories = [];
+        const API_BASE = SHOP_API;
+        let allItems = [];
+        let allCategories = [];
+        let selectedItem = null;
 
         async function loadData() {
             try {
@@ -120,7 +148,7 @@ const API_BASE = 'https://val-app.onrender.com/api/shop/';        let allCategor
                 document.getElementById('itemsGrid').innerHTML = `
                     <div class="col-span-3 text-center py-10">
                         <p class="text-red-500 font-semibold">Failed to load cakes.</p>
-                        <p class="text-gray-500 text-sm">Make sure Django is running on port 8000</p>
+                        <p class="text-gray-500 text-sm">Make sure the backend is running and reachable.</p>
                     </div>`;
             }
         }
@@ -151,10 +179,10 @@ const API_BASE = 'https://val-app.onrender.com/api/shop/';        let allCategor
 
             let html = '';
             filteredItems.forEach(item => {
-                // Only show image if it exists, otherwise show empty gray box
                 const imageHtml = item.image 
-                    ? `<img src="${encodeURI(item.image)}" ... >`
-                    : `<div ...>No Image</div>`;
+                    ? `<img src="${encodeURI(item.image)}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null; this.style.display='none'">`
+                    : `<div class="w-full h-full bg-stone-200 flex items-center justify-center text-stone-400 text-sm">No Image</div>`;
+                const itemArg = encodeURIComponent(JSON.stringify(item));
                 
                 html += `
                 <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-stone-100 group">
@@ -169,11 +197,12 @@ const API_BASE = 'https://val-app.onrender.com/api/shop/';        let allCategor
                         <p class="text-gray-600 text-sm mb-4 line-clamp-2">${item.description}</p>
                         <div class="flex items-center justify-between pt-4 border-t border-stone-100">
                             <div>
+                                <span class="block text-xs text-gray-500">Base price (guide)</span>
                                 <span class="text-2xl font-bold text-brand-pink">${parseInt(item.price).toLocaleString()}</span>
                                 <span class="text-xs text-gray-500 ml-1">UGX</span>
                             </div>
-                            <button onclick='addToCart(${JSON.stringify(item)})' class="bg-gray-900 text-white px-5 py-2 rounded-full hover:bg-brand-pink transition-colors shadow-sm text-sm font-semibold">
-                                Add to Cart
+                            <button onclick="openCustomizeModal(decodeURIComponent('${itemArg}'))" class="bg-gray-900 text-white px-5 py-2 rounded-full hover:bg-brand-pink transition-colors shadow-sm text-sm font-semibold">
+                                Customize & Order
                             </button>
                         </div>
                     </div>
@@ -194,18 +223,44 @@ const API_BASE = 'https://val-app.onrender.com/api/shop/';        let allCategor
             renderItems(categoryId);
         }
 
-        // Add to Cart Function
-        function addToCart(item) {
-            let cart = JSON.parse(localStorage.getItem('valcakes_cart')) || [];
-            const existingItem = cart.find(cartItem => cartItem.id === item.id);
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                cart.push({ ...item, quantity: 1 });
-            }
-            localStorage.setItem('valcakes_cart', JSON.stringify(cart));
-            alert(`${item.name} added to cart!`);
+        function openCustomizeModal(itemJson) {
+            selectedItem = typeof itemJson === 'string' ? JSON.parse(itemJson) : itemJson;
+            document.getElementById('customizeItemName').innerText = `Customize: ${selectedItem.name}`;
+            document.getElementById('customizeQuantity').value = 1;
+            document.getElementById('customizeEdits').value = '';
+            const modal = document.getElementById('customizeModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
+
+        function closeCustomizeModal() {
+            const modal = document.getElementById('customizeModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            selectedItem = null;
+        }
+
+        document.getElementById('customizeForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!selectedItem) return;
+            const quantity = Math.max(1, parseInt(document.getElementById('customizeQuantity').value || '1', 10));
+            const customEdits = document.getElementById('customizeEdits').value.trim();
+
+            let cart = JSON.parse(localStorage.getItem('valcakes_cart')) || [];
+            cart.push({
+                cartId: `${selectedItem.id}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                id: selectedItem.id,
+                name: selectedItem.name,
+                price: selectedItem.price,
+                image: selectedItem.image || null,
+                category_name: selectedItem.category_name || 'Cake',
+                quantity,
+                custom_edits: customEdits
+            });
+            localStorage.setItem('valcakes_cart', JSON.stringify(cart));
+            closeCustomizeModal();
+            alert(`${selectedItem.name} added to cart. You can submit your order at checkout to receive a price quote.`);
+        });
 
         document.addEventListener('DOMContentLoaded', loadData);
     </script>
