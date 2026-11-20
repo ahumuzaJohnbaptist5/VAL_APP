@@ -5,6 +5,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 from rest_framework.response import Response
 
+from site_settings.models import FeatureSettings, NotificationSettings
+
 from .models import CakeOrder, ShopCategory, ShopItem
 from .serializers import (
     CakeOrderQuoteSerializer,
@@ -59,11 +61,23 @@ class ShopCategoryViewSet(viewsets.ModelViewSet):
     serializer_class = ShopCategorySerializer
     permission_classes = [IsShopAdminOrReadOnly]
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if not FeatureSettings.load().wholesale_shop_enabled and not _is_staff_user(self.request.user):
+            return qs.none()
+        return qs
+
 
 class ShopItemViewSet(viewsets.ModelViewSet):
     queryset = ShopItem.objects.all()
     serializer_class = ShopItemSerializer
     permission_classes = [IsShopAdminOrReadOnly]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if not FeatureSettings.load().wholesale_shop_enabled and not _is_staff_user(self.request.user):
+            return qs.none()
+        return qs
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -135,7 +149,15 @@ def _format_order_items(order):
 
 
 def _send_new_order_email(order):
-    staff_email = getattr(settings, 'STAFF_NOTIFICATION_EMAIL', None) or settings.DEFAULT_FROM_EMAIL
+    notification_settings = NotificationSettings.load()
+    if not notification_settings.send_new_order_emails:
+        return False
+
+    staff_email = (
+        notification_settings.staff_email
+        or getattr(settings, 'STAFF_NOTIFICATION_EMAIL', None)
+        or settings.DEFAULT_FROM_EMAIL
+    )
     subject = f"New Cake Order #{order.id} - Quote Requested"
     body = (
         f"A new cake order has been placed and needs a price quote.\n\n"
@@ -150,13 +172,17 @@ def _send_new_order_email(order):
         f"Please review this order in the staff dashboard and submit a quoted price."
     )
     send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [staff_email], fail_silently=False)
+    return True
 
 
 def _send_quote_email(order):
-    if not order.customer_email:
+    notification_settings = NotificationSettings.load()
+    if not notification_settings.send_quote_emails or not order.customer_email:
         return False
     subject = f"Price Quote for Your Cake Order #{order.id}"
-    quote_message = (order.quote_message or '').strip()
+    quote_message = (
+        order.quote_message or notification_settings.default_quote_message or ''
+    ).strip()
     message_block = f"\nMessage from staff: {quote_message}\n" if quote_message else ""
     body = (
         f"Hello {order.customer_name},\n\n"
@@ -200,6 +226,12 @@ class CakeOrderViewSet(viewsets.ModelViewSet):
         return context
 
     def create(self, request, *args, **kwargs):
+        if not FeatureSettings.load().cake_orders_enabled:
+            return Response(
+                {'detail': 'Cake orders are currently unavailable. Please try again later.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         order = serializer.save()
@@ -225,6 +257,13 @@ class CakeOrderViewSet(viewsets.ModelViewSet):
         if not _is_staff_user(request.user):
             return Response({'detail': 'You do not have permission to perform this action.'}, status=status.HTTP_403_FORBIDDEN)
 
+        features = FeatureSettings.load()
+        if not features.cake_orders_enabled or not features.quotes_enabled:
+            return Response(
+                {'detail': 'Sending quotes is currently disabled in settings.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         order = CakeOrder.objects.prefetch_related('items').get(pk=pk)
         if order.status not in [CakeOrder.STATUS_PENDING_QUOTE, CakeOrder.STATUS_QUOTED]:
             return Response({'detail': 'Only pending or previously quoted orders can be quoted.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -232,7 +271,8 @@ class CakeOrderViewSet(viewsets.ModelViewSet):
         serializer = CakeOrderQuoteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         order.quoted_price = serializer.validated_data['quoted_price']
-        order.quote_message = serializer.validated_data.get('quote_message', '')
+        quote_message = (serializer.validated_data.get('quote_message') or '').strip()
+        order.quote_message = quote_message or NotificationSettings.load().default_quote_message
         order.status = CakeOrder.STATUS_QUOTED
         order.save(update_fields=['quoted_price', 'quote_message', 'status', 'updated_at'])
 
@@ -250,6 +290,8 @@ class CakeOrderViewSet(viewsets.ModelViewSet):
             data['quote_email_error'] = 'Quote saved, but the email could not be sent.'
         if not order.customer_email:
             data['quote_email_warning'] = 'No customer email on file; quote was saved but not emailed.'
+        elif not NotificationSettings.load().send_quote_emails:
+            data['quote_email_warning'] = 'Quote emails are disabled in settings; the quote was saved but not emailed.'
         return Response(data)
 
     @action(detail=True, methods=['post'], url_path='respond')

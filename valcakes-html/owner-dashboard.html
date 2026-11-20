@@ -36,7 +36,8 @@
             </div>
         </div>
         <nav class="flex-grow p-4 space-y-2">
-            <a href="#" class="block px-4 py-3 bg-pink-50 text-brand-pink font-semibold rounded-lg">Dashboard</a>
+            <a href="#dashboard" id="navDashboard" onclick="switchView('dashboard')" class="block px-4 py-3 bg-pink-50 text-brand-pink font-semibold rounded-lg">Dashboard</a>
+            <a href="#settings" id="navSettings" onclick="switchView('settings')" class="hidden px-4 py-3 text-gray-600 hover:bg-stone-50 rounded-lg transition">⚙ Settings</a>
             <a href="index.html" class="block px-4 py-3 text-gray-600 hover:bg-stone-50 rounded-lg transition">View Website</a>
         </nav>
         <div class="p-4 border-t border-stone-200">
@@ -48,6 +49,7 @@
 
     <!-- Main Content -->
     <main class="flex-grow ml-64 p-8">
+     <div id="dashboardView">
         <!-- Header -->
         <div class="flex justify-between items-center mb-8">
             <div>
@@ -137,6 +139,172 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+     </div>
+
+        <!-- SETTINGS VIEW -->
+        <div id="settingsView" class="hidden">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="font-serif text-3xl font-bold text-gray-900">Settings</h1>
+                    <p class="text-gray-600">Manage store details, notifications, staff access and features.</p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 mb-6">
+                <button type="button" onclick="switchSettingsTab('store')" id="tab-store" class="settings-tab px-4 py-2 rounded-lg text-sm font-semibold bg-gray-900 text-white">Store</button>
+                <button type="button" onclick="switchSettingsTab('notifications')" id="tab-notifications" class="settings-tab px-4 py-2 rounded-lg text-sm font-semibold bg-white text-gray-600 border border-stone-200 hover:bg-stone-50">Notifications</button>
+                <button type="button" onclick="switchSettingsTab('staff')" id="tab-staff" class="settings-tab px-4 py-2 rounded-lg text-sm font-semibold bg-white text-gray-600 border border-stone-200 hover:bg-stone-50">Staff &amp; Approvals</button>
+                <button type="button" onclick="switchSettingsTab('features')" id="tab-features" class="settings-tab px-4 py-2 rounded-lg text-sm font-semibold bg-white text-gray-600 border border-stone-200 hover:bg-stone-50">Features &amp; Access</button>
+                <button type="button" onclick="switchSettingsTab('incoming')" id="tab-incoming" class="settings-tab px-4 py-2 rounded-lg text-sm font-semibold bg-white text-gray-600 border border-stone-200 hover:bg-stone-50">Incoming</button>
+            </div>
+
+            <div id="settingsMessage" class="hidden mb-6 px-4 py-3 rounded-lg text-sm font-medium"></div>
+
+            <!-- Store settings -->
+            <section id="panel-store" class="settings-panel bg-white rounded-xl shadow-sm border border-stone-200 p-6">
+                <h2 class="font-serif text-xl font-bold text-gray-900 mb-1">Store configuration</h2>
+                <p class="text-sm text-gray-500 mb-6">These details are available to the public storefront through the settings API.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Store name</label>
+                        <input type="text" id="storeName" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Currency label</label>
+                        <input type="text" id="storeCurrency" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none" placeholder="UGX">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Contact email</label>
+                        <input type="email" id="storeEmail" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Contact phone</label>
+                        <input type="text" id="storePhone" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Address</label>
+                        <input type="text" id="storeAddress" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">About text</label>
+                        <textarea id="storeAbout" rows="3" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none"></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-6">
+                    <button type="button" onclick="saveSettings('store')" id="saveStoreBtn" class="bg-brand-pink text-white px-6 py-2 rounded-lg font-semibold hover:bg-pink-700">Save store settings</button>
+                </div>
+            </section>
+
+            <!-- Notification settings -->
+            <section id="panel-notifications" class="settings-panel hidden bg-white rounded-xl shadow-sm border border-stone-200 p-6">
+                <h2 class="font-serif text-xl font-bold text-gray-900 mb-1">Notifications &amp; email</h2>
+                <p class="text-sm text-gray-500 mb-6">Control automatic emails sent for orders and quotes.</p>
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Staff notification email</label>
+                        <input type="email" id="staffEmail" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none" placeholder="Leave blank to use the server default">
+                    </div>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="sendNewOrderEmails" class="w-5 h-5 rounded text-brand-pink focus:ring-brand-pink">
+                        <span class="text-sm font-semibold text-gray-700">Email staff when a new cake order is placed</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="sendQuoteEmails" class="w-5 h-5 rounded text-brand-pink focus:ring-brand-pink">
+                        <span class="text-sm font-semibold text-gray-700">Email customers when a quote is sent</span>
+                    </label>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Default quote message</label>
+                        <textarea id="defaultQuoteMessage" rows="3" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none" placeholder="Used when a quote is sent without a custom message"></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-6">
+                    <button type="button" onclick="saveSettings('notifications')" id="saveNotificationsBtn" class="bg-brand-pink text-white px-6 py-2 rounded-lg font-semibold hover:bg-pink-700">Save notification settings</button>
+                </div>
+            </section>
+
+            <!-- Staff settings -->
+            <section id="panel-staff" class="settings-panel hidden space-y-6">
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h2 class="font-serif text-xl font-bold text-gray-900">Pending requests</h2>
+                            <p class="text-sm text-gray-500">Admins and agents waiting for approval.</p>
+                        </div>
+                        <button type="button" onclick="loadStaff()" class="px-4 py-2 border border-stone-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-stone-50">Refresh</button>
+                    </div>
+                    <div id="pendingStaffList" class="space-y-3"><p class="text-sm text-gray-500">Loading...</p></div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+                    <div class="p-6 border-b border-stone-200">
+                        <h2 class="font-serif text-xl font-bold text-gray-900">Staff accounts</h2>
+                        <p class="text-sm text-gray-500">Change roles or deactivate an account. You cannot deactivate yourself.</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-stone-50 text-gray-600 text-xs uppercase">
+                                <tr>
+                                    <th class="p-4">Name</th>
+                                    <th class="p-4">Phone</th>
+                                    <th class="p-4">Role</th>
+                                    <th class="p-4">Active</th>
+                                    <th class="p-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffTableBody" class="divide-y divide-stone-100">
+                                <tr><td colspan="5" class="p-4 text-center text-gray-500">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Feature settings -->
+            <section id="panel-features" class="settings-panel hidden bg-white rounded-xl shadow-sm border border-stone-200 p-6">
+                <h2 class="font-serif text-xl font-bold text-gray-900 mb-1">Features &amp; access control</h2>
+                <p class="text-sm text-gray-500 mb-6">Toggle functionality across the API and storefront.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="flex items-start gap-3 border border-stone-200 rounded-lg p-4 cursor-pointer hover:bg-stone-50">
+                        <input type="checkbox" id="featureCakeOrders" class="mt-1 w-5 h-5 rounded text-brand-pink focus:ring-brand-pink">
+                        <span><span class="block text-sm font-semibold text-gray-800">Cake orders</span><span class="block text-xs text-gray-500">Allow customers to place new cake orders.</span></span>
+                    </label>
+                    <label class="flex items-start gap-3 border border-stone-200 rounded-lg p-4 cursor-pointer hover:bg-stone-50">
+                        <input type="checkbox" id="featureQuotes" class="mt-1 w-5 h-5 rounded text-brand-pink focus:ring-brand-pink">
+                        <span><span class="block text-sm font-semibold text-gray-800">Quotes</span><span class="block text-xs text-gray-500">Allow staff to send price quotes to customers.</span></span>
+                    </label>
+                    <label class="flex items-start gap-3 border border-stone-200 rounded-lg p-4 cursor-pointer hover:bg-stone-50">
+                        <input type="checkbox" id="featureShop" class="mt-1 w-5 h-5 rounded text-brand-pink focus:ring-brand-pink">
+                        <span><span class="block text-sm font-semibold text-gray-800">Wholesale shop</span><span class="block text-xs text-gray-500">Show shop items and categories to customers.</span></span>
+                    </label>
+                    <label class="flex items-start gap-3 border border-stone-200 rounded-lg p-4 cursor-pointer hover:bg-stone-50">
+                        <input type="checkbox" id="featureRegistration" class="mt-1 w-5 h-5 rounded text-brand-pink focus:ring-brand-pink">
+                        <span><span class="block text-sm font-semibold text-gray-800">Customer registration</span><span class="block text-xs text-gray-500">Allow new accounts to be created.</span></span>
+                    </label>
+                    <label class="flex items-start gap-3 border border-red-200 bg-red-50 rounded-lg p-4 cursor-pointer hover:bg-red-100 md:col-span-2">
+                        <input type="checkbox" id="featureMaintenance" class="mt-1 w-5 h-5 rounded text-red-600 focus:ring-red-500">
+                        <span><span class="block text-sm font-semibold text-red-800">Maintenance mode</span><span class="block text-xs text-red-700">Block all customer write requests. Staff and the dashboard stay available.</span></span>
+                    </label>
+                </div>
+                <div class="flex justify-end mt-6">
+                    <button type="button" onclick="saveSettings('features')" id="saveFeaturesBtn" class="bg-brand-pink text-white px-6 py-2 rounded-lg font-semibold hover:bg-pink-700">Save feature settings</button>
+                </div>
+            </section>
+
+            <!-- Incoming features -->
+            <section id="panel-incoming" class="settings-panel hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 mb-6">
+                    <h2 class="font-serif text-xl font-bold text-gray-900">Incoming</h2>
+                    <p class="text-sm text-gray-500">Features planned for future releases. Coming soon.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <div class="bg-white rounded-xl border border-stone-200 p-5"><span class="text-xs font-bold uppercase tracking-wide text-brand-pink">Incoming</span><h3 class="font-semibold text-gray-900 mt-2">Online payments</h3><p class="text-sm text-gray-500 mt-1">Card and mobile money checkout integration.</p></div>
+                    <div class="bg-white rounded-xl border border-stone-200 p-5"><span class="text-xs font-bold uppercase tracking-wide text-brand-pink">Incoming</span><h3 class="font-semibold text-gray-900 mt-2">Delivery scheduling</h3><p class="text-sm text-gray-500 mt-1">Pick delivery dates and track orders.</p></div>
+                    <div class="bg-white rounded-xl border border-stone-200 p-5"><span class="text-xs font-bold uppercase tracking-wide text-brand-pink">Incoming</span><h3 class="font-semibold text-gray-900 mt-2">SMS notifications</h3><p class="text-sm text-gray-500 mt-1">Text updates for customers without email.</p></div>
+                    <div class="bg-white rounded-xl border border-stone-200 p-5"><span class="text-xs font-bold uppercase tracking-wide text-brand-pink">Incoming</span><h3 class="font-semibold text-gray-900 mt-2">Analytics &amp; reports</h3><p class="text-sm text-gray-500 mt-1">Sales, stock and order reporting.</p></div>
+                    <div class="bg-white rounded-xl border border-stone-200 p-5"><span class="text-xs font-bold uppercase tracking-wide text-brand-pink">Incoming</span><h3 class="font-semibold text-gray-900 mt-2">Loyalty program</h3><p class="text-sm text-gray-500 mt-1">Rewards for repeat customers.</p></div>
+                    <div class="bg-white rounded-xl border border-stone-200 p-5"><span class="text-xs font-bold uppercase tracking-wide text-brand-pink">Incoming</span><h3 class="font-semibold text-gray-900 mt-2">Multi-branch support</h3><p class="text-sm text-gray-500 mt-1">Manage stock and staff across locations.</p></div>
+                </div>
+            </section>
         </div>
     </main>
 
@@ -249,14 +417,17 @@
     <script src="config.js"></script>
     <script>
         const API_BASE = SHOP_API;
+        const USER_API = USERS_API;
         let token = localStorage.getItem('access_token');
         let user = JSON.parse(localStorage.getItem('user'));
+        const isAdmin = !!(user && (user.role === 'admin' || user.is_superuser));
 
         // 1. Security Check
         if (!token || !user) {
             window.location.href = 'login.html';
         } else {
             document.getElementById('adminName').innerText = `Welcome, ${user.full_name} (${user.role})`;
+            if (isAdmin) document.getElementById('navSettings').classList.remove('hidden');
         }
 
         // 2. Fetch Data on Load
@@ -706,6 +877,255 @@ async function deleteCategory(id) {
         function logout() { 
             localStorage.clear(); 
             window.location.href = 'login.html'; 
+        }
+
+        // ===== SETTINGS =====
+        const NAV_BASE = 'block px-4 py-3 text-gray-600 hover:bg-stone-50 rounded-lg transition';
+        const NAV_ACTIVE = 'block px-4 py-3 bg-pink-50 text-brand-pink font-semibold rounded-lg';
+        const NAV_HIDDEN = 'hidden px-4 py-3 text-gray-600 hover:bg-stone-50 rounded-lg transition';
+        const TAB_BASE = 'settings-tab px-4 py-2 rounded-lg text-sm font-semibold bg-white text-gray-600 border border-stone-200 hover:bg-stone-50';
+        const TAB_ACTIVE = 'settings-tab px-4 py-2 rounded-lg text-sm font-semibold bg-gray-900 text-white';
+
+        function settingsHeaders(includeJson) {
+            const headers = { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` };
+            if (includeJson) headers['Content-Type'] = 'application/json';
+            return headers;
+        }
+
+        function showSettingsMessage(message, isError) {
+            const el = document.getElementById('settingsMessage');
+            if (!message) {
+                el.className = 'hidden';
+                el.innerText = '';
+                return;
+            }
+            el.className = 'mb-6 px-4 py-3 rounded-lg text-sm font-medium border ' +
+                (isError ? 'bg-red-50 text-red-700 border-red-200' : 'bg-green-50 text-green-700 border-green-200');
+            el.innerText = message;
+        }
+
+        async function settingsFetch(url, options) {
+            const res = await fetch(url, options);
+            if (res.status === 401) {
+                localStorage.clear();
+                window.location.href = 'login.html';
+                throw new Error('Session expired. Please log in again.');
+            }
+            return res;
+        }
+
+        function switchView(view) {
+            if (view === 'settings' && !isAdmin) return;
+            const showingSettings = view === 'settings';
+            document.getElementById('dashboardView').classList.toggle('hidden', showingSettings);
+            document.getElementById('settingsView').classList.toggle('hidden', !showingSettings);
+            document.getElementById('navDashboard').className = showingSettings ? NAV_BASE : NAV_ACTIVE;
+            document.getElementById('navSettings').className = showingSettings
+                ? NAV_ACTIVE
+                : (isAdmin ? NAV_BASE : NAV_HIDDEN);
+            window.scrollTo(0, 0);
+            if (showingSettings) loadSettings();
+        }
+
+        function switchSettingsTab(tab) {
+            ['store', 'notifications', 'staff', 'features', 'incoming'].forEach(name => {
+                document.getElementById('panel-' + name).classList.toggle('hidden', name !== tab);
+                document.getElementById('tab-' + name).className = name === tab ? TAB_ACTIVE : TAB_BASE;
+            });
+            showSettingsMessage('', false);
+            if (tab === 'staff') loadStaff();
+        }
+
+        async function loadSettings() {
+            try {
+                const res = await settingsFetch(SETTINGS_API, { headers: settingsHeaders(false) });
+                if (!res.ok) {
+                    const error = await res.json().catch(() => ({}));
+                    throw new Error(error.detail || 'Unable to load settings.');
+                }
+                const data = await res.json();
+                const store = data.store || {};
+                const notifications = data.notifications || {};
+                const features = data.features || {};
+
+                document.getElementById('storeName').value = store.store_name || '';
+                document.getElementById('storeCurrency').value = store.currency || '';
+                document.getElementById('storeEmail').value = store.contact_email || '';
+                document.getElementById('storePhone').value = store.contact_phone || '';
+                document.getElementById('storeAddress').value = store.address || '';
+                document.getElementById('storeAbout').value = store.about_text || '';
+
+                document.getElementById('staffEmail').value = notifications.staff_email || '';
+                document.getElementById('sendNewOrderEmails').checked = !!notifications.send_new_order_emails;
+                document.getElementById('sendQuoteEmails').checked = !!notifications.send_quote_emails;
+                document.getElementById('defaultQuoteMessage').value = notifications.default_quote_message || '';
+
+                document.getElementById('featureCakeOrders').checked = !!features.cake_orders_enabled;
+                document.getElementById('featureQuotes').checked = !!features.quotes_enabled;
+                document.getElementById('featureShop').checked = !!features.wholesale_shop_enabled;
+                document.getElementById('featureRegistration').checked = !!features.allow_customer_registration;
+                document.getElementById('featureMaintenance').checked = !!features.maintenance_mode;
+            } catch (err) {
+                showSettingsMessage(err.message, true);
+            }
+        }
+
+        async function saveSettings(section) {
+            const payloads = {
+                store: {
+                    store: {
+                        store_name: document.getElementById('storeName').value.trim(),
+                        currency: document.getElementById('storeCurrency').value.trim(),
+                        contact_email: document.getElementById('storeEmail').value.trim(),
+                        contact_phone: document.getElementById('storePhone').value.trim(),
+                        address: document.getElementById('storeAddress').value.trim(),
+                        about_text: document.getElementById('storeAbout').value.trim(),
+                    }
+                },
+                notifications: {
+                    notifications: {
+                        staff_email: document.getElementById('staffEmail').value.trim(),
+                        send_new_order_emails: document.getElementById('sendNewOrderEmails').checked,
+                        send_quote_emails: document.getElementById('sendQuoteEmails').checked,
+                        default_quote_message: document.getElementById('defaultQuoteMessage').value.trim(),
+                    }
+                },
+                features: {
+                    features: {
+                        cake_orders_enabled: document.getElementById('featureCakeOrders').checked,
+                        quotes_enabled: document.getElementById('featureQuotes').checked,
+                        wholesale_shop_enabled: document.getElementById('featureShop').checked,
+                        allow_customer_registration: document.getElementById('featureRegistration').checked,
+                        maintenance_mode: document.getElementById('featureMaintenance').checked,
+                    }
+                },
+            };
+
+            const buttonId = 'save' + section.charAt(0).toUpperCase() + section.slice(1) + 'Btn';
+            const button = document.getElementById(buttonId);
+            const originalText = button.innerText;
+            button.disabled = true;
+            button.innerText = 'Saving...';
+            showSettingsMessage('', false);
+            try {
+                const res = await settingsFetch(SETTINGS_API, {
+                    method: 'PATCH',
+                    headers: settingsHeaders(true),
+                    body: JSON.stringify(payloads[section]),
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.detail || 'Unable to save settings.');
+                showSettingsMessage('Settings saved successfully.', false);
+                await loadSettings();
+            } catch (err) {
+                showSettingsMessage(err.message, true);
+            } finally {
+                button.disabled = false;
+                button.innerText = originalText;
+            }
+        }
+
+        async function loadStaff() {
+            try {
+                const [pendingRes, staffRes] = await Promise.all([
+                    settingsFetch(USER_API + 'pending-admins/', { headers: settingsHeaders(false) }),
+                    settingsFetch(USER_API + 'staff/', { headers: settingsHeaders(false) }),
+                ]);
+                if (!pendingRes.ok || !staffRes.ok) throw new Error('Unable to load staff accounts.');
+                const pending = await pendingRes.json();
+                const staff = await staffRes.json();
+
+                const pendingList = document.getElementById('pendingStaffList');
+                if (!Array.isArray(pending) || pending.length === 0) {
+                    pendingList.innerHTML = '<p class="text-sm text-gray-500">No pending requests.</p>';
+                } else {
+                    pendingList.innerHTML = pending.map(u => `
+                        <div class="flex flex-wrap items-center justify-between gap-3 border border-stone-200 rounded-lg p-4">
+                            <div>
+                                <p class="font-semibold text-gray-900">${escapeHtml(u.full_name)}</p>
+                                <p class="text-xs text-gray-500">${escapeHtml(u.phone_number)} &middot; ${escapeHtml(u.role)} &middot; ${escapeHtml(formatDate(u.date_joined))}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" onclick="approveStaff(${u.id})" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-600 text-white hover:bg-green-700">Approve</button>
+                                <button type="button" onclick="rejectStaff(${u.id})" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-red-600 border border-red-200 hover:bg-red-50">Reject</button>
+                            </div>
+                        </div>`).join('');
+                }
+
+                const tbody = document.getElementById('staffTableBody');
+                if (!Array.isArray(staff) || staff.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">No staff accounts yet.</td></tr>';
+                } else {
+                    tbody.innerHTML = staff.map(u => {
+                        const isSelf = user && u.id === user.id;
+                        return `
+                        <tr class="hover:bg-stone-50">
+                            <td class="p-4 font-medium text-gray-900">${escapeHtml(u.full_name)}${isSelf ? ' <span class="text-xs text-brand-pink">(you)</span>' : ''}</td>
+                            <td class="p-4 text-gray-600">${escapeHtml(u.phone_number)}</td>
+                            <td class="p-4">
+                                <select id="staffRole-${u.id}" class="border border-stone-300 rounded-lg p-2 text-sm bg-white">
+                                    <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+                                    <option value="agent" ${u.role === 'agent' ? 'selected' : ''}>Agent</option>
+                                    <option value="customer" ${u.role === 'customer' ? 'selected' : ''}>Customer</option>
+                                </select>
+                            </td>
+                            <td class="p-4"><input type="checkbox" id="staffActive-${u.id}" class="w-5 h-5 rounded text-brand-pink focus:ring-brand-pink" ${u.is_active ? 'checked' : ''} ${isSelf ? 'disabled' : ''}></td>
+                            <td class="p-4 text-right">
+                                <button type="button" onclick="saveStaff(${u.id})" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-900 text-white hover:bg-gray-800">Save</button>
+                            </td>
+                        </tr>`;
+                    }).join('');
+                }
+            } catch (err) {
+                showSettingsMessage(err.message, true);
+            }
+        }
+
+        async function approveStaff(id) {
+            try {
+                const res = await settingsFetch(USER_API + `admins/${id}/approve/`, {
+                    method: 'POST', headers: settingsHeaders(false),
+                });
+                if (!res.ok) throw new Error('Unable to approve this account.');
+                showSettingsMessage('Account approved.', false);
+                await loadStaff();
+            } catch (err) {
+                showSettingsMessage(err.message, true);
+            }
+        }
+
+        async function rejectStaff(id) {
+            if (!confirm('Reject this request and remove the account?')) return;
+            try {
+                const res = await settingsFetch(USER_API + `admins/${id}/reject/`, {
+                    method: 'POST', headers: settingsHeaders(false),
+                });
+                if (!res.ok) throw new Error('Unable to reject this account.');
+                showSettingsMessage('Request rejected.', false);
+                await loadStaff();
+            } catch (err) {
+                showSettingsMessage(err.message, true);
+            }
+        }
+
+        async function saveStaff(id) {
+            const payload = {
+                role: document.getElementById(`staffRole-${id}`).value,
+                is_active: document.getElementById(`staffActive-${id}`).checked,
+            };
+            try {
+                const res = await settingsFetch(USER_API + `admins/${id}/`, {
+                    method: 'PATCH',
+                    headers: settingsHeaders(true),
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.detail || 'Unable to update this account.');
+                showSettingsMessage('Staff account updated.', false);
+                await loadStaff();
+            } catch (err) {
+                showSettingsMessage(err.message, true);
+            }
         }
     </script>
 </body>

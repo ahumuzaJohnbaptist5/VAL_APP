@@ -45,3 +45,21 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'full_name', 'phone_number', 'email', 'role', 'is_approved', 'date_joined']
+
+
+class StaffUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'id', 'full_name', 'phone_number', 'email', 'role',
+            'is_approved', 'is_active', 'date_joined',
+        ]
+
+
+class StaffUserUpdateSerializer(serializers.Serializer):
+    role = serializers.ChoiceField(
+        choices=[('admin', 'Admin'), ('agent', 'Agent'), ('customer', 'Customer')],
+        required=False,
+    )
+    is_approved = serializers.BooleanField(required=False)
+    is_active = serializers.BooleanField(required=False)

@@ -7,3 +7,4 @@ const BACKEND_URL = IS_LOCAL
 
 const SHOP_API = `${BACKEND_URL}/api/shop/`;
 const USERS_API = `${BACKEND_URL}/api/users/`;
+const SETTINGS_API = `${BACKEND_URL}/api/settings/`;
