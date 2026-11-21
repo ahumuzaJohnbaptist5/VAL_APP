@@ -65,3 +65,41 @@ class PasswordRecoveryTests(APITestCase):
         self.assertEqual(self.client.post(reverse('password-reset-confirm'), data).status_code, 400)
         self.user.refresh_from_db()
         self.assertTrue(self.user.check_password('Old!Password924'))
+
+from .views import get_tokens_for_user
+from .session_auth import SessionAuthentication
+from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.exceptions import AuthenticationFailed
+
+
+class SessionManagementTests(APITestCase):
+    def setUp(self):
+        cache.clear()
+        self.user = User.objects.create_user(
+            phone_number='+256700000901', full_name='Session Customer',
+            password='Old!Password924', role='customer', is_approved=True,
+        )
+        self.tokens = get_tokens_for_user(self.user)
+
+    def test_refresh_issues_access_token(self):
+        response = self.client.post(reverse('session-refresh'), {'refresh': self.tokens['refresh']})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(SessionAuthentication().get_user(AccessToken(response.data['access'])), self.user)
+
+    def test_logout_revokes_both_tokens(self):
+        self.assertEqual(self.client.post(reverse('session-logout'), {'refresh': self.tokens['refresh']}).status_code, 204)
+        self.assertEqual(self.client.post(reverse('session-refresh'), {'refresh': self.tokens['refresh']}).status_code, 401)
+        with self.assertRaises(AuthenticationFailed):
+            SessionAuthentication().get_user(AccessToken(self.tokens['access']))
+
+    def test_password_change_revokes_both_tokens(self):
+        self.user.set_password('Fresh!Password984')
+        self.user.save()
+        self.assertEqual(self.client.post(reverse('session-refresh'), {'refresh': self.tokens['refresh']}).status_code, 401)
+        with self.assertRaises(AuthenticationFailed):
+            SessionAuthentication().get_user(AccessToken(self.tokens['access']))
+
+    def test_unapproved_account_cannot_refresh(self):
+        self.user.is_approved = False
+        self.user.save()
+        self.assertEqual(self.client.post(reverse('session-refresh'), {'refresh': self.tokens['refresh']}).status_code, 401)

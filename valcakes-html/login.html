@@ -82,6 +82,7 @@
             if (response.ok) {
                 // 1. SAVE THE TOKEN!
                 localStorage.setItem('access_token', result.tokens.access);
+                localStorage.setItem('refresh_token', result.tokens.refresh);
                 localStorage.setItem('user', JSON.stringify(result.user));
                 
                 showMessage('Login successful! Redirecting...', 'success');

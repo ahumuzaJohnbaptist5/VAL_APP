@@ -478,7 +478,7 @@
             const token = localStorage.getItem('access_token');
             const tbody = document.getElementById('ordersTableBody');
             try {
-                const res = await fetch(API_BASE + 'orders/', {
+                const res = await authFetch(API_BASE + 'orders/', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -613,7 +613,7 @@
             btn.innerText = 'Sending...';
 
             try {
-                const res = await fetch(API_BASE + `orders/${orderId}/quote/`, {
+                const res = await authFetch(API_BASE + `orders/${orderId}/quote/`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -646,7 +646,7 @@ async function fetchCategories() {
     const token = localStorage.getItem('access_token');
     
     try {
-        const res = await fetch(API_BASE + 'categories/', { 
+        const res = await authFetch(API_BASE + 'categories/', { 
             headers: { 
                 'Authorization': `Bearer ${token}` 
             } 
@@ -655,7 +655,7 @@ async function fetchCategories() {
         // If unauthorized, redirect to login
         if (res.status === 401) {
             console.error('❌ Token expired or invalid. Please log in again.');
-            localStorage.clear();
+            clearSession();
             window.location.href = 'login.html';
             return;
         }
@@ -692,7 +692,7 @@ async function fetchItems() {
     const token = localStorage.getItem('access_token');
     
     try {
-        const res = await fetch(API_BASE + 'items/', { 
+        const res = await authFetch(API_BASE + 'items/', { 
             headers: { 
                 'Authorization': `Bearer ${token}` 
             } 
@@ -701,7 +701,7 @@ async function fetchItems() {
         // If unauthorized, redirect to login
         if (res.status === 401) {
             console.error('❌ Token expired or invalid. Please log in again.');
-            localStorage.clear();
+            clearSession();
             window.location.href = 'login.html';
             return;
         }
@@ -759,7 +759,7 @@ document.getElementById('categoryForm').addEventListener('submit', async (e) => 
     if (button.disabled) return;
     button.disabled = true;
     try {
-        const response = await fetch(API_BASE + 'categories/', {
+        const response = await authFetch(API_BASE + 'categories/', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -820,7 +820,7 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     form.dataset.submitting = 'true';
     if (submitButton) submitButton.disabled = true;
     try {
-        const response = await fetch(API_BASE + 'items/', {
+        const response = await authFetch(API_BASE + 'items/', {
             method: 'POST',
             headers: { 
                 'Authorization': `Bearer ${localStorage.getItem('access_token')}`
@@ -853,7 +853,7 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
 // 5. Delete Functions
 async function deleteCategory(id) {
     if(!confirm('Delete this category?')) return;
-    await fetch(API_BASE + `categories/${id}/`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+    await authFetch(API_BASE + `categories/${id}/`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
     fetchCategories();
 }
 
@@ -861,7 +861,7 @@ async function deleteCategory(id) {
 
         async function deleteItem(id) {
             if(!confirm('Delete this item?')) return;
-            await fetch(API_BASE + `items/${id}/`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+            await authFetch(API_BASE + `items/${id}/`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
             fetchItems();
         }
 
@@ -874,10 +874,7 @@ async function deleteCategory(id) {
             document.getElementById(id).classList.add('hidden'); 
             document.getElementById(id).classList.remove('flex'); 
         }
-        function logout() { 
-            localStorage.clear(); 
-            window.location.href = 'login.html'; 
-        }
+        function logout() { logoutSession(); }
 
         // ===== SETTINGS =====
         const NAV_BASE = 'block px-4 py-3 text-gray-600 hover:bg-stone-50 rounded-lg transition';
@@ -905,9 +902,9 @@ async function deleteCategory(id) {
         }
 
         async function settingsFetch(url, options) {
-            const res = await fetch(url, options);
+            const res = await authFetch(url, options);
             if (res.status === 401) {
-                localStorage.clear();
+                clearSession();
                 window.location.href = 'login.html';
                 throw new Error('Session expired. Please log in again.');
             }

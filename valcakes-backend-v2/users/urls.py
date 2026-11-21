@@ -1,4 +1,5 @@
 from django.urls import path
+from .session import SessionRefreshView, SessionLogoutView
 from .password_recovery import PasswordResetRequestView, PasswordResetConfirmView
 from .views import (
     ApproveAdminView,
@@ -11,6 +12,8 @@ from .views import (
 )
 
 urlpatterns = [
+    path('token/refresh/', SessionRefreshView.as_view(), name='session-refresh'),
+    path('logout/', SessionLogoutView.as_view(), name='session-logout'),
     path('password-reset/', PasswordResetRequestView.as_view(), name='password-reset'),
     path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
     path('register/', RegisterView.as_view(), name='register'),
