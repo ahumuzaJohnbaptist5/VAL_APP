@@ -4,6 +4,7 @@ from .password_recovery import PasswordResetRequestView, PasswordResetConfirmVie
 from .views import (
     ApproveAdminView,
     LoginView,
+    ProfileView,
     PendingAdminsView,
     RegisterView,
     RejectAdminView,
@@ -12,6 +13,7 @@ from .views import (
 )
 
 urlpatterns = [
+    path('me/', ProfileView.as_view(), name='my-profile'),
     path('token/refresh/', SessionRefreshView.as_view(), name='session-refresh'),
     path('logout/', SessionLogoutView.as_view(), name='session-logout'),
     path('password-reset/', PasswordResetRequestView.as_view(), name='password-reset'),

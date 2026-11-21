@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -11,6 +12,7 @@ from core.permissions import IsAdmin
 from site_settings.models import FeatureSettings
 from .serializers import (
     LoginSerializer,
+    ProfilePictureSerializer,
     RegisterSerializer,
     StaffUserSerializer,
     StaffUserUpdateSerializer,
@@ -62,6 +64,20 @@ class LoginView(APIView):
         user = serializer.validated_data['user']
         tokens = get_tokens_for_user(user)
         return Response({'user': UserSerializer(user).data, 'tokens': tokens}, status=status.HTTP_200_OK)
+
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response(UserSerializer(request.user, context={'request': request}).data)
+
+    def patch(self, request):
+        serializer = ProfilePictureSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        request.user.profile_picture = serializer.validated_data['profile_picture']
+        request.user.save(update_fields=['profile_picture'])
+        return Response(UserSerializer(request.user, context={'request': request}).data)
 
 
 class PendingAdminsView(APIView):
