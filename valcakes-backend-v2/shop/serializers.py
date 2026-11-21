@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db import transaction
 
 from .models import CakeOrder, CakeOrderItem, ShopCategory, ShopItem
 
@@ -82,6 +83,7 @@ class CakeOrderSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('At least one cake/item is required.')
         return value
 
+    @transaction.atomic
     def create(self, validated_data):
         items_data = validated_data.pop('items', [])
         request = self.context.get('request')

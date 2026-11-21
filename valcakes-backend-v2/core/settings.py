@@ -1,13 +1,33 @@
 import os
 from pathlib import Path
 from datetime import timedelta
+from django.core.exceptions import ImproperlyConfigured
+from django.core.management.utils import get_random_secret_key
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-ba_a-(qy1(fl2=*ya=+$f+h1m30b(v@pe6qf1#pgv=9no39gub'
-DEBUG = os.environ.get('RENDER', 'False') != 'True'
+PRODUCTION = os.environ.get('RENDER', '').lower() == 'true' or os.environ.get('DJANGO_ENV') == 'production'
+DEBUG = not PRODUCTION and os.environ.get('DJANGO_DEBUG', 'true').lower() == 'true'
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    if PRODUCTION:
+        raise ImproperlyConfigured('SECRET_KEY is required in production')
+    SECRET_KEY = get_random_secret_key()
 
-ALLOWED_HOSTS = ['*']
+def env_list(name, default=''):
+    return [value.strip() for value in os.environ.get(name, default).split(',') if value.strip()]
+
+ALLOWED_HOSTS = env_list('ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver' if not PRODUCTION else '')
+if os.environ.get('RENDER_EXTERNAL_HOSTNAME'):
+    ALLOWED_HOSTS.append(os.environ['RENDER_EXTERNAL_HOSTNAME'])
+if PRODUCTION and not ALLOWED_HOSTS:
+    raise ImproperlyConfigured('ALLOWED_HOSTS is required in production')
+if PRODUCTION:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = env_list('CSRF_TRUSTED_ORIGINS')
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -39,7 +59,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = env_list('CORS_ALLOWED_ORIGINS', 'http://localhost:5500,http://127.0.0.1:5500,http://localhost:3000,http://127.0.0.1:3000,http://localhost:8080,http://127.0.0.1:8080' if not PRODUCTION else '')
 
 ROOT_URLCONF = 'core.urls'
 
@@ -68,6 +88,7 @@ DATABASES = {
 }
 
 REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_RATES': {'login': '10/min', 'register': '5/min', 'order': '10/min'},
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -77,7 +98,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(os.environ.get("ACCESS_TOKEN_MINUTES", "60"))),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
 }
 
@@ -96,7 +117,10 @@ USE_TZ = True
 # Static files - CRITICAL FOR ADMIN
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
+}
 
 # Media files
 MEDIA_URL = '/media/'
@@ -112,12 +136,15 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp-relay.brevo.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('BREVO_API_KEY')
-EMAIL_HOST_PASSWORD = os.environ.get('BREVO_API_KEY')
-DEFAULT_FROM_EMAIL = 'Val Investments <johnbaptistahumuza5@gmail.com>'
-STAFF_NOTIFICATION_EMAIL = os.environ.get('STAFF_NOTIFICATION_EMAIL', 'johnbaptistahumuza5@gmail.com')
+EMAIL_HOST_USER = os.environ.get('BREVO_SMTP_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('BREVO_SMTP_PASSWORD', '')
+EMAIL_TIMEOUT = 10
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
+STAFF_NOTIFICATION_EMAIL = os.environ.get('STAFF_NOTIFICATION_EMAIL', '')
 
 # Production database
 if os.environ.get('DATABASE_URL'):
     import dj_database_url
     DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
+elif PRODUCTION:
+    raise ImproperlyConfigured('DATABASE_URL is required in production')
