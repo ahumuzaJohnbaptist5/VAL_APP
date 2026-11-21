@@ -1,6 +1,6 @@
 from django.urls import reverse
 from rest_framework.test import APIClient, APITestCase
-from rest_framework_simplejwt.tokens import RefreshToken
+from users.views import get_tokens_for_user
 
 from shop.models import ShopItem
 from users.models import User
@@ -29,7 +29,7 @@ class SettingsApiTests(APITestCase):
         self.settings_url = reverse('settings')
 
     def authenticate(self, user):
-        token = str(RefreshToken.for_user(user).access_token)
+        token = get_tokens_for_user(user)['access']
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
 
     def test_admin_can_read_and_update_settings(self):
@@ -90,7 +90,7 @@ class StaffManagementTests(APITestCase):
             role='agent',
         )
         self.client = APIClient()
-        token = str(RefreshToken.for_user(self.admin).access_token)
+        token = get_tokens_for_user(self.admin)['access']
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
 
     def test_admin_can_approve_and_manage_staff(self):
@@ -156,7 +156,7 @@ class FeatureToggleTests(APITestCase):
             is_staff=True,
         )
         FeatureSettings.objects.update_or_create(pk=1, defaults={'maintenance_mode': True})
-        token = str(RefreshToken.for_user(admin).access_token)
+        token = get_tokens_for_user(admin)['access']
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
 
         response = self.client.patch(
