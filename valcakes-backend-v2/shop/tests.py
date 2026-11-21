@@ -23,3 +23,34 @@ class OrderSecurityTests(APITestCase):
     def test_missing_order_quote_returns_404(self):
         self.client.force_authenticate(self.admin)
         self.assertEqual(self.client.post(reverse('orders-quote', args=[999999]), {'quoted_price': 10000}, format='json').status_code, 404)
+
+from unittest.mock import patch
+from django.core.files.base import ContentFile
+from django.test import SimpleTestCase
+from cloudinary.exceptions import NotFound
+from core.storage import CloudinaryImageStorage
+from shop.models import ShopItem
+from shop.serializers import ShopItemSerializer
+
+
+@override_settings(CLOUDINARY_CREDENTIALS={'cloud_name': 'test', 'api_key': 'test', 'api_secret': 'test'})
+class ImageStorageTests(SimpleTestCase):
+    def test_image_path_is_stable_and_extension_specific(self):
+        storage = CloudinaryImageStorage()
+        self.assertEqual(storage.public_id('shop_items/a.jpg'), storage.public_id('shop_items/a.jpg'))
+        self.assertNotEqual(storage.public_id('shop_items/a.jpg'), storage.public_id('shop_items/a.png'))
+        self.assertTrue(storage.url('shop_items/a.jpg').startswith('https://'))
+
+    @patch('core.storage.cloudinary.uploader.upload')
+    @patch('core.storage.cloudinary.api.resource', side_effect=NotFound('missing'))
+    def test_upload_preserves_name(self, resource, upload):
+        storage = CloudinaryImageStorage()
+        name = 'shop_items/a.jpg'
+        upload.return_value = {'public_id': storage.public_id(name)}
+        self.assertEqual(storage.save(name, ContentFile(b'image')), name)
+        self.assertFalse(upload.call_args.kwargs['overwrite'])
+
+    def test_serializer_returns_cloud_url_without_request(self):
+        item = ShopItem(name='Cake', price=100, image='shop_items/a.jpg')
+        item.image.storage = CloudinaryImageStorage()
+        self.assertEqual(ShopItemSerializer(item).data['image'], item.image.url)
