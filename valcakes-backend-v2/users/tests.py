@@ -103,3 +103,56 @@ class SessionManagementTests(APITestCase):
         self.user.is_approved = False
         self.user.save()
         self.assertEqual(self.client.post(reverse('session-refresh'), {'refresh': self.tokens['refresh']}).status_code, 401)
+
+
+from io import BytesIO
+from tempfile import TemporaryDirectory
+from PIL import Image
+from django.core.files.uploadedfile import SimpleUploadedFile
+
+
+class ProfilePictureTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            phone_number='+256700000902', full_name='Picture Customer',
+            password='Old!Password924', role='customer', is_approved=True,
+        )
+        self.other = User.objects.create_user(
+            phone_number='+256700000903', full_name='Other Customer',
+            password='Old!Password924', role='customer', is_approved=True,
+        )
+        self.url = reverse('my-profile')
+        self.temp = TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        override = override_settings(MEDIA_ROOT=self.temp.name, STORAGES={
+            'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+            'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+        })
+        override.enable()
+        self.addCleanup(override.disable)
+
+    def picture(self):
+        stream = BytesIO()
+        Image.new('RGB', (32, 32)).save(stream, format='PNG')
+        return SimpleUploadedFile('avatar.png', stream.getvalue(), content_type='image/png')
+
+    def test_anonymous_cannot_upload(self):
+        self.assertEqual(self.client.patch(self.url, {'profile_picture': self.picture()}, format='multipart').status_code, 401)
+
+    def test_authenticated_user_can_upload_own_picture(self):
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + get_tokens_for_user(self.user)['access'])
+        response = self.client.patch(self.url, {'profile_picture': self.picture(), 'id': self.other.pk, 'role': 'admin'}, format='multipart')
+        self.assertEqual(response.status_code, 200, response.data)
+        self.user.refresh_from_db()
+        self.other.refresh_from_db()
+        self.assertTrue(self.user.profile_picture)
+        self.assertFalse(self.other.profile_picture)
+        self.assertEqual(self.user.role, 'customer')
+        self.assertEqual(self.client.get(self.url).data['profile_picture'], response.data['profile_picture'])
+
+    def test_invalid_picture_is_rejected(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.patch(self.url, {'profile_picture': SimpleUploadedFile('fake.png', b'not an image')}, format='multipart')
+        self.assertEqual(response.status_code, 400)
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.profile_picture)

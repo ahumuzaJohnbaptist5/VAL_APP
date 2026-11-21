@@ -1,4 +1,8 @@
 from rest_framework import serializers
+from uuid import uuid4
+from io import BytesIO
+from PIL import Image, ImageOps, UnidentifiedImageError
+from django.core.files.base import ContentFile
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -51,7 +55,31 @@ class LoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'full_name', 'phone_number', 'email', 'role', 'is_approved', 'date_joined']
+        fields = ['id', 'full_name', 'phone_number', 'email', 'role', 'is_approved', 'date_joined', 'profile_picture']
+        read_only_fields = fields
+
+
+class ProfilePictureSerializer(serializers.Serializer):
+    profile_picture = serializers.ImageField()
+
+    def validate_profile_picture(self, value):
+        if value.size > 8 * 1024 * 1024:
+            raise serializers.ValidationError('Choose an image no larger than 8 MB.')
+        try:
+            value.seek(0)
+            with Image.open(value) as image:
+                if image.format not in ('JPEG', 'PNG', 'WEBP'):
+                    raise serializers.ValidationError('Choose a JPG, PNG or WebP image.')
+                if image.width * image.height > 25_000_000:
+                    raise serializers.ValidationError('Image dimensions exceed 25 megapixels.')
+                picture = ImageOps.exif_transpose(image)
+                picture.thumbnail((1024, 1024))
+                picture = picture.convert('RGB')
+                output = BytesIO()
+                picture.save(output, format='JPEG', quality=88)
+        except (OSError, ValueError, UnidentifiedImageError, Image.DecompressionBombError):
+            raise serializers.ValidationError('Unable to read this image.')
+        return ContentFile(output.getvalue(), name=f'{uuid4().hex}.jpg')
 
 
 class StaffUserSerializer(serializers.ModelSerializer):
