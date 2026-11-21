@@ -24,15 +24,28 @@
             }
         }
     </script>
+    <style>
+        #adminSidebar { z-index: 40; overflow-y: auto; }
+        #adminSidebar[hidden], #sidebarBackdrop[hidden] { display: none !important; }
+        #dashboardMain { min-width: 0; width: 100%; margin-left: 16rem; }
+        body.sidebar-collapsed #dashboardMain { margin-left: 0; }
+        #sidebarToggle { min-width: 44px; min-height: 44px; }
+        @media (max-width: 767px) {
+            #dashboardMain { margin-left: 0; }
+            #adminSidebar { width: min(80vw, 16rem); }
+            #dashboardView > :first-child { flex-wrap: wrap; gap: 12px; }
+        }
+    </style>
 </head>
 <body class="font-sans text-gray-800 bg-stone-100 min-h-screen flex">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-stone-200 min-h-screen flex flex-col fixed h-full">
+    <aside id="adminSidebar" class="w-64 bg-white border-r border-stone-200 min-h-screen flex flex-col fixed h-full top-0 left-0">
         <div class="p-6 border-b border-stone-200">
             <div class="flex items-center gap-3">
                 <img src="logo.png" alt="Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
                 <span class="font-serif text-xl font-bold text-gray-900">VAL ADMIN</span>
+                <button id="sidebarClose" type="button" aria-label="Hide navigation menu" class="ml-auto shrink-0 p-2 rounded-lg hover:bg-stone-100 focus:ring-2 focus:ring-brand-pink"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
             </div>
         </div>
         <nav class="flex-grow p-4 space-y-2">
@@ -48,7 +61,14 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-grow ml-64 p-8">
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/40 z-30" hidden aria-hidden="true"></div>
+    <main id="dashboardMain" class="flex-grow p-3 sm:p-5 md:p-8">
+      <div class="sticky top-0 z-20 flex items-center gap-3 py-2 mb-4 bg-stone-100">
+        <button id="sidebarToggle" type="button" aria-controls="adminSidebar" aria-expanded="true" aria-label="Hide navigation menu" class="inline-flex items-center justify-center rounded-lg border border-stone-300 bg-white shadow-sm hover:bg-pink-50 focus:ring-2 focus:ring-brand-pink">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <span class="text-sm font-semibold text-gray-600">Menu</span>
+      </div>
      <div id="dashboardView">
         <!-- Header -->
         <div class="flex justify-between items-center mb-8">
@@ -1160,6 +1180,42 @@ async function deleteCategory(id) {
                 showSettingsMessage(err.message, true);
             }
         }
+    </script>
+    <script>
+        (() => {
+            const sidebar = document.getElementById('adminSidebar');
+            const toggle = document.getElementById('sidebarToggle');
+            const close = document.getElementById('sidebarClose');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            const mobile = window.matchMedia('(max-width: 767px)');
+            let desktopOpen = true;
+            let open = !mobile.matches;
+
+            function setOpen(value, returnFocus = false) {
+                open = value;
+                if (!mobile.matches) desktopOpen = open;
+                sidebar.hidden = !open;
+                backdrop.hidden = !(mobile.matches && open);
+                document.body.classList.toggle('sidebar-collapsed', !open);
+                toggle.setAttribute('aria-expanded', String(open));
+                toggle.setAttribute('aria-label', open ? 'Hide navigation menu' : 'Show navigation menu');
+                if (!open && returnFocus) toggle.focus();
+            }
+
+            toggle.addEventListener('click', () => setOpen(!open));
+            close.addEventListener('click', () => setOpen(false, true));
+            backdrop.addEventListener('click', () => setOpen(false, true));
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape' && open) setOpen(false, true);
+            });
+            sidebar.querySelectorAll('nav a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (mobile.matches) setOpen(false, true);
+                });
+            });
+            mobile.addEventListener('change', () => setOpen(!mobile.matches && desktopOpen));
+            setOpen(open);
+        })();
     </script>
 </body>
 </html>
