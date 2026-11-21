@@ -126,6 +126,17 @@ STORAGES = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+CLOUDINARY_CREDENTIALS = {
+    'cloud_name': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'api_key': os.environ.get('CLOUDINARY_API_KEY'),
+    'api_secret': os.environ.get('CLOUDINARY_API_SECRET'),
+}
+if any(CLOUDINARY_CREDENTIALS.values()) and not all(CLOUDINARY_CREDENTIALS.values()):
+    raise ImproperlyConfigured('All three Cloudinary credentials are required together')
+if all(CLOUDINARY_CREDENTIALS.values()):
+    STORAGES['default'] = {'BACKEND': 'core.storage.CloudinaryImageStorage'}
+
+
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
