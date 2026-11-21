@@ -90,7 +90,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden mb-8">
             <div class="flex justify-between items-center p-6 border-b border-stone-200">
                 <h2 class="font-serif text-xl font-bold text-gray-900">Shop Items</h2>
-                <button onclick="openModal('itemModal')" class="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition">+ Add Item</button>
+                <button onclick="openItemEditor()" class="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition">+ Add Item</button>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
@@ -324,9 +324,9 @@
     </div>
 
     <!-- Add Item Modal -->
-    <div id="itemModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 w-full max-w-lg shadow-2xl">
-            <h3 class="font-serif text-xl font-bold mb-4">Add New Item</h3>
+    <div id="itemModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-3 overflow-y-auto">
+        <div class="bg-white rounded-xl p-4 sm:p-6 w-full max-w-lg shadow-2xl max-h-[90dvh] overflow-y-auto">
+            <h3 id="itemModalTitle" class="font-serif text-xl font-bold mb-4">Add New Item</h3>
             <form id="itemForm" class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Item Name</label>
@@ -341,25 +341,26 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Price (UGX)</label>
-                        <input type="number" id="itemPrice" placeholder="50000" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none">
+                        <input type="number" min="0" step="0.01" id="itemPrice" placeholder="50000" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Stock Quantity</label>
-                        <input type="number" id="itemStock" placeholder="100" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none">
+                        <input type="number" min="0" step="1" id="itemStock" placeholder="100" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none">
                     </div>
                 </div>
                 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
-                    <select id="itemCategory" required class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none bg-white">
-                        <option value="">Select Category</option>
+                    <select id="itemCategory" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none bg-white">
+                        <option value="">Uncategorized</option>
                     </select>
                 </div>
                 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Product Image</label>
                     <input type="file" id="itemImage" accept="image/*" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none bg-white text-sm">
-                    <p class="text-xs text-gray-500 mt-1">Accepted: JPG, PNG, JPEG (Max 5MB)</p>
+                    <img id="existingItemImage" class="hidden w-20 h-20 object-cover rounded-lg mt-2" alt="Current product image">
+                    <p id="itemImageHint" class="text-xs text-gray-500 mt-1">Accepted: JPG, PNG, JPEG (Max 5MB)</p>
                 </div>
                 
                 <label class="flex items-center gap-2 cursor-pointer">
@@ -673,7 +674,7 @@ async function fetchCategories() {
         const select = document.getElementById('itemCategory');
         
         list.innerHTML = '';
-        select.innerHTML = '<option value="">Select Category</option>';
+        select.innerHTML = '<option value="">Uncategorized</option>';
 
         data.forEach(cat => {
             list.innerHTML += `
@@ -686,6 +687,39 @@ async function fetchCategories() {
     } catch (err) { 
         console.error('Error fetching categories', err); 
     }
+}
+
+let editableItems = new Map();
+function openItemEditor(id = null) {
+    if (!isAdmin) return;
+    const form = document.getElementById('itemForm');
+    if (form.dataset.submitting === 'true') return;
+    const item = id === null ? null : editableItems.get(Number(id));
+    if (id !== null && !item) { alert('Item not found. Refresh and try again.'); return; }
+    form.reset();
+    form.dataset.itemId = item ? String(item.id) : '';
+    document.getElementById('itemModalTitle').textContent = item ? 'Edit Item' : 'Add New Item';
+    form.querySelector('[type="submit"]').textContent = item ? 'Save Changes' : 'Save Item';
+    const preview = document.getElementById('existingItemImage');
+    preview.classList.add('hidden');
+    preview.removeAttribute('src');
+    document.getElementById('itemImageHint').textContent = item
+        ? 'Leave empty to keep the current image. Max 5MB.'
+        : 'Accepted: JPG, PNG, JPEG (Max 5MB)';
+    if (item) {
+        document.getElementById('itemName').value = item.name;
+        document.getElementById('itemDesc').value = item.description || '';
+        document.getElementById('itemPrice').value = item.price;
+        document.getElementById('itemStock').value = item.stock_quantity;
+        const category = document.getElementById('itemCategory');
+        if (item.category != null && !Array.from(category.options).some(option => option.value === String(item.category))) {
+            category.add(new Option(item.category_name || 'Current category', String(item.category)));
+        }
+        category.value = item.category == null ? '' : String(item.category);
+        document.getElementById('itemInStock').checked = item.in_stock;
+        if (item.image) { preview.src = item.image; preview.classList.remove('hidden'); }
+    }
+    openModal('itemModal');
 }
 
 async function fetchItems() {
@@ -717,6 +751,7 @@ async function fetchItems() {
         console.log('=== ITEMS FROM API ===');
         console.log(data);
         
+        editableItems = new Map(data.map(item => [Number(item.id), item]));
         document.getElementById('totalItems').innerText = data.length;
         const tbody = document.getElementById('itemsTableBody');
         tbody.innerHTML = '';
@@ -731,10 +766,10 @@ const imageUrl = item.image ? encodeURI(item.image) : 'data:image/svg+xml,%3Csvg
             tbody.innerHTML += `
                 <tr class="hover:bg-stone-50">
                     <td class="p-4">
-                        <img src="${imageUrl}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg border border-stone-200" onerror="this.style.display='none'">
+                        <img src="${imageUrl}" alt="${escapeHtml(item.name)}" class="w-12 h-12 object-cover rounded-lg border border-stone-200" onerror="this.style.display='none'">
                     </td>
-                    <td class="p-4 font-medium text-gray-900">${item.name}</td>
-                    <td class="p-4 text-gray-600">${item.category_name || 'Uncategorized'}</td>
+                    <td class="p-4 font-medium text-gray-900">${escapeHtml(item.name)}</td>
+                    <td class="p-4 text-gray-600">${escapeHtml(item.category_name || 'Uncategorized')}</td>
                     <td class="p-4 font-semibold">${parseInt(item.price).toLocaleString()}</td>
                     <td class="p-4">${item.stock_quantity}</td>
                     <td class="p-4">
@@ -743,7 +778,7 @@ const imageUrl = item.image ? encodeURI(item.image) : 'data:image/svg+xml,%3Csvg
                         </span>
                     </td>
                     <td class="p-4 text-right">
-                        <button onclick="deleteItem(${item.id})" class="text-red-500 hover:text-red-700 font-semibold text-xs">Delete</button>
+                        ${isAdmin ? `<button onclick="openItemEditor(${Number(item.id)})" class="px-3 py-2 mr-2 rounded-lg bg-pink-50 text-pink-700 font-semibold text-sm">Edit</button><button onclick="deleteItem(${Number(item.id)})" class="px-3 py-2 text-red-600 font-semibold text-sm">Delete</button>` : ''}
                     </td>
                 </tr>`;
         });
@@ -789,6 +824,7 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     const submitButton = form.querySelector('[type="submit"]');
     if (form.dataset.submitting === 'true') return;
     
+    const itemId = form.dataset.itemId;
     const formData = new FormData();
     formData.append('name', document.getElementById('itemName').value);
     formData.append('description', document.getElementById('itemDesc').value);
@@ -820,8 +856,8 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     form.dataset.submitting = 'true';
     if (submitButton) submitButton.disabled = true;
     try {
-        const response = await authFetch(API_BASE + 'items/', {
-            method: 'POST',
+        const response = await authFetch(API_BASE + (itemId ? `items/${itemId}/` : 'items/'), {
+            method: itemId ? 'PATCH' : 'POST',
             headers: { 
                 'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                 // IMPORTANT: Don't set Content-Type header - browser sets it automatically for FormData
@@ -834,16 +870,16 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
         console.log('📥 Response data:', responseData);
         
         if (!response.ok) {
-            throw new Error(responseData.detail || responseData.image?.[0] || 'Failed to add item');
+            throw new Error(responseData.detail || Object.entries(responseData).map(([key, value]) => key + ': ' + value).join('; ') || 'Failed to save item');
         }
         
         closeModal('itemModal');
         document.getElementById('itemForm').reset();
         await fetchItems();
-        alert('Item added successfully!');
+        alert(itemId ? 'Item updated successfully!' : 'Item added successfully!');
     } catch (err) { 
-        console.error('❌ Error adding item:', err);
-        alert('Failed to add item: ' + err.message);
+        console.error('❌ Error saving item:', err);
+        alert('Failed to save item: ' + err.message);
     } finally {
         form.dataset.submitting = 'false';
         if (submitButton) submitButton.disabled = false;
