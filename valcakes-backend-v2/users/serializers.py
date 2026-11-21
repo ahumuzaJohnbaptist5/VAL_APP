@@ -1,28 +1,35 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from .models import User
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
-    role = serializers.CharField(required=False, default='customer')
+    role = serializers.ChoiceField(choices=['customer', 'agent', 'admin'], required=False, default='customer')
 
     class Meta:
         model = User
         fields = ['full_name', 'phone_number', 'email', 'password', 'role']
 
+    def validate(self, attrs):
+        try:
+            validate_password(attrs['password'], User(full_name=attrs['full_name'], phone_number=attrs['phone_number'], email=attrs.get('email')))
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError({'password': exc.messages})
+        return attrs
+
     def create(self, validated_data):
         role = validated_data.pop('role', 'customer')
         is_approved = True if role == 'customer' else False
         
-        user = User.objects.create(
+        user = User.objects.create_user(password=validated_data['password'],
             full_name=validated_data['full_name'],
             phone_number=validated_data['phone_number'],
             email=validated_data.get('email', ''),
             role=role,
             is_approved=is_approved
         )
-        user.set_password(validated_data['password'])
-        user.save()
         return user
 
 class LoginSerializer(serializers.Serializer):

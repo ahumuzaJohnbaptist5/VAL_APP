@@ -21,3 +21,8 @@ staticfiles/
 Thumbs.db
 .vscode/
 .idea/
+
+.env.*
+!.env.example
+*.log
+.pytest_cache/

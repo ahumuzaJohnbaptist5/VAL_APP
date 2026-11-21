@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.shortcuts import get_object_or_404
+from rest_framework.throttling import ScopedRateThrottle
 from django.core.mail import send_mail
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -201,6 +203,12 @@ class CakeOrderViewSet(viewsets.ModelViewSet):
     serializer_class = CakeOrderSerializer
     http_method_names = ['get', 'post', 'head', 'options']
 
+    def get_throttles(self):
+        if self.action == 'create':
+            self.throttle_scope = 'order'
+            return [ScopedRateThrottle()]
+        return super().get_throttles()
+
     def get_permissions(self):
         if self.action == 'create':
             return []
@@ -264,7 +272,7 @@ class CakeOrderViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        order = CakeOrder.objects.prefetch_related('items').get(pk=pk)
+        order = get_object_or_404(CakeOrder.objects.prefetch_related('items'), pk=pk)
         if order.status not in [CakeOrder.STATUS_PENDING_QUOTE, CakeOrder.STATUS_QUOTED]:
             return Response({'detail': 'Only pending or previously quoted orders can be quoted.'}, status=status.HTTP_400_BAD_REQUEST)
 

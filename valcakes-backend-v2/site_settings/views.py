@@ -1,4 +1,5 @@
 from rest_framework import status
+from django.db import transaction
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -54,6 +55,7 @@ class SettingsView(APIView):
             'features': (FeatureSettings, FeatureSettingsSerializer),
         }
 
+        serializers = []
         for section, data in request.data.items():
             model, serializer_class = section_config[section]
             if not isinstance(data, dict):
@@ -63,7 +65,10 @@ class SettingsView(APIView):
                 )
             serializer = serializer_class(model.load(), data=data, partial=True)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            serializers.append(serializer)
+        with transaction.atomic():
+            for serializer in serializers:
+                serializer.save()
 
         return Response(settings_bundle())
 
