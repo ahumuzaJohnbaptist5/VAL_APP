@@ -54,3 +54,25 @@ class ImageStorageTests(SimpleTestCase):
         item = ShopItem(name='Cake', price=100, image='shop_items/a.jpg')
         item.image.storage = CloudinaryImageStorage()
         self.assertEqual(ShopItemSerializer(item).data['image'], item.image.url)
+
+
+from io import BytesIO
+from PIL import Image
+from django.core.files.uploadedfile import SimpleUploadedFile
+
+
+class ImageUploadLimitTests(SimpleTestCase):
+    def image_file(self, size):
+        stream = BytesIO()
+        Image.new('RGB', (1, 1)).save(stream, format='PNG')
+        content = stream.getvalue()
+        return SimpleUploadedFile('cake.png', content + b'\x00' * (size - len(content)), content_type='image/png')
+
+    def test_accepts_eight_megabyte_image(self):
+        serializer = ShopItemSerializer(data={'image': self.image_file(8 * 1024 * 1024)}, partial=True)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_rejects_image_over_eight_megabytes(self):
+        serializer = ShopItemSerializer(data={'image': self.image_file(8 * 1024 * 1024 + 1)}, partial=True)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('image', serializer.errors)

@@ -380,7 +380,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Product Image</label>
                     <input type="file" id="itemImage" accept="image/*" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-brand-pink outline-none bg-white text-sm">
                     <img id="existingItemImage" class="hidden w-20 h-20 object-cover rounded-lg mt-2" alt="Current product image">
-                    <p id="itemImageHint" class="text-xs text-gray-500 mt-1">Accepted: JPG, PNG, JPEG (Max 5MB)</p>
+                    <p id="itemImageHint" class="text-xs text-gray-500 mt-1">Accepted: JPG, PNG, JPEG (Max 8 MB)</p>
                 </div>
                 
                 <label class="flex items-center gap-2 cursor-pointer">
@@ -724,8 +724,8 @@ function openItemEditor(id = null) {
     preview.classList.add('hidden');
     preview.removeAttribute('src');
     document.getElementById('itemImageHint').textContent = item
-        ? 'Leave empty to keep the current image. Max 5MB.'
-        : 'Accepted: JPG, PNG, JPEG (Max 5MB)';
+        ? 'Leave empty to keep the current image. Max 8 MB.'
+        : 'Accepted: JPG, PNG, JPEG (Max 8 MB)';
     if (item) {
         document.getElementById('itemName').value = item.name;
         document.getElementById('itemDesc').value = item.description || '';
@@ -856,9 +856,9 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
     // Handle image file
     const imageFile = document.getElementById('itemImage').files[0];
     if (imageFile) {
-        // Check file size (max 5MB)
-        if (imageFile.size > 5 * 1024 * 1024) {
-            alert('Image file is too large. Max size is 5MB.');
+        // Check file size (max 8 MB)
+        if (imageFile.size > 8 * 1024 * 1024) {
+            alert('Image file is too large. Max size is 8 MB.');
             return;
         }
         formData.append('image', imageFile);

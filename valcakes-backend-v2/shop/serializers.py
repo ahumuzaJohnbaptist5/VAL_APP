@@ -14,6 +14,11 @@ class ShopItemSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     image = serializers.ImageField(required=False, allow_null=True)
 
+    def validate_image(self, value):
+        if value is not None and value.size > 8 * 1024 * 1024:
+            raise serializers.ValidationError('Image file is too large. Maximum size is 8 MB.')
+        return value
+
     class Meta:
         model = ShopItem
         fields = ['id', 'name', 'description', 'price', 'category', 'category_name', 'image', 'in_stock', 'stock_quantity']
