@@ -21,10 +21,12 @@ from .models import User
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
+    refresh['session_id'] = refresh['jti']
     return {'refresh': str(refresh), 'access': str(refresh.access_token)}
 
 
 class RegisterView(generics.CreateAPIView):
+    authentication_classes = []
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = 'register'
     serializer_class = RegisterSerializer
@@ -49,6 +51,7 @@ class RegisterView(generics.CreateAPIView):
 
 
 class LoginView(APIView):
+    authentication_classes = []
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = 'login'
     permission_classes = [] # Allow anyone to login

@@ -193,7 +193,7 @@
             container.innerHTML = '<p class="text-gray-500 text-center py-10">Loading your orders...</p>';
 
             try {
-                const res = await fetch(SHOP_API + 'orders/', {
+                const res = await authFetch(SHOP_API + 'orders/', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -264,7 +264,7 @@
             if (!confirm(confirmMsg)) return;
 
             try {
-                const res = await fetch(SHOP_API + `orders/${orderId}/respond/`, {
+                const res = await authFetch(SHOP_API + `orders/${orderId}/respond/`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -281,10 +281,7 @@
             }
         }
 
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
+        function logout() { logoutSession(); }
     </script>
 </body>
 </html>

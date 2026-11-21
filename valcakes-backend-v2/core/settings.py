@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'whitenoise.runserver_nostatic',  # WhiteNoise for static files
     'users',
@@ -88,9 +89,9 @@ DATABASES = {
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_THROTTLE_RATES': {'login': '10/min', 'register': '5/min', 'order': '10/min', 'password_reset': '5/hour', 'password_reset_confirm': '10/hour'},
+    'DEFAULT_THROTTLE_RATES': {'login': '10/min', 'register': '5/min', 'order': '10/min', 'password_reset': '5/hour', 'password_reset_confirm': '10/hour', 'session_refresh': '60/hour'},
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'users.session_auth.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
@@ -100,6 +101,7 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(os.environ.get("ACCESS_TOKEN_MINUTES", "60"))),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+    "CHECK_REVOKE_TOKEN": True,
 }
 
 AUTH_PASSWORD_VALIDATORS = [
