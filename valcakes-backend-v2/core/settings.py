@@ -88,7 +88,7 @@ DATABASES = {
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_THROTTLE_RATES': {'login': '10/min', 'register': '5/min', 'order': '10/min'},
+    'DEFAULT_THROTTLE_RATES': {'login': '10/min', 'register': '5/min', 'order': '10/min', 'password_reset': '5/hour', 'password_reset_confirm': '10/hour'},
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -159,3 +159,6 @@ if os.environ.get('DATABASE_URL'):
     DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
 elif PRODUCTION:
     raise ImproperlyConfigured('DATABASE_URL is required in production')
+
+PASSWORD_RESET_TIMEOUT = 1800
+PASSWORD_RESET_FRONTEND_URL = os.environ.get('PASSWORD_RESET_FRONTEND_URL', 'https://val-ten-bice.vercel.app/reset-password.html' if PRODUCTION else 'http://127.0.0.1:5500/reset-password.html')
